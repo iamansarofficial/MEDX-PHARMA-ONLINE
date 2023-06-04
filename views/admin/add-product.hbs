@@ -1,0 +1,109 @@
+<section>
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6">
+        <h3 class="tittle text-center">Add Products</h3>
+        <form action="/admin/add-product" method="post" enctype="multipart/form-data">
+
+          <!-- Existing form inputs -->
+
+          <label for="">Name</label>
+          <input type="text" class="form-control" name="Name">
+<label for="">Category</label>
+<select class="form-control" name="Category">
+  <option value="" selected disabled>Click to select category</option>
+
+        {{#each categories}}
+         <option value="{{this.Name}}">{{this.Name}}</option>
+              {{/each}}
+
+
+
+         </select>
+
+
+          <label for="">Price</label>
+          <input type="text" class="form-control" name="Price">
+
+          <label for="">Description</label>
+          <input type="text" class="form-control" name="Description">
+ <label for="">Image</label>
+          <input type="file" class="form-control" name="Image" id="image-upload">
+          <div id="image-preview" style="margin-top: 10px;"></div>
+          <button type="button" style="margin-bottom: 1rem;" class="btn btn-primary mt-4" id="crop-button">Crop</button>
+          <button type="button" style="margin-bottom: 1rem; display: none;" class="btn btn-secondary mt-4" id="cancel-button">Cancel</button>
+          <button type="submit" style="margin-bottom: 1rem;" class="btn btn-primary mt-4">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Initialize Cropper.js
+  var cropper;
+
+  // Function to handle image selection and preview
+  function handleImageSelect(event) {
+    var input = event.target;
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        // Create an image element for preview
+        var imagePreview = document.createElement('img');
+        imagePreview.id = 'preview-image';
+        imagePreview.src = e.target.result;
+        document.getElementById('image-preview').appendChild(imagePreview);
+
+        // Initialize Cropper.js on the image
+        cropper = new Cropper(imagePreview, {
+          aspectRatio: 1, // Set the aspect ratio as needed
+          viewMode: 2, // Enable crop box resizing and panning
+        });
+      };
+
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Attach event listener to the image upload input
+  document.getElementById('image-upload').addEventListener('change', handleImageSelect);
+
+  // Function to handle crop button click
+  document.getElementById('crop-button').addEventListener('click', function () {
+    // Display the cancel button
+    document.getElementById('cancel-button').style.display = 'inline-block';
+
+    // Get the cropped image data
+    var croppedImageData = cropper.getCroppedCanvas().toDataURL('image/jpeg');
+
+    // Create an input element to hold the cropped image data
+    var croppedImageInput = document.createElement('input');
+    croppedImageInput.type = 'hidden';
+    croppedImageInput.name = 'CroppedImage';
+    croppedImageInput.value = croppedImageData;
+
+    // Append the cropped image input to the form
+    document.querySelector('form').appendChild(croppedImageInput);
+  });
+
+  // Function to handle cancel button click
+  document.getElementById('cancel-button').addEventListener('click', function () {
+    // Hide the cancel button
+    document.getElementById('cancel-button').style.display = 'none';
+
+    // Remove the cropped image input
+    var croppedImageInput = document.querySelector('input[name="CroppedImage"]');
+    if (croppedImageInput) {
+      croppedImageInput.remove();
+    }
+
+    // Reset the Cropper.js instance
+    cropper.destroy();
+    cropper = null;
+
+    // Remove the image preview
+    document.getElementById('preview-image').remove();
+  });
+</script>

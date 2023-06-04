@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+	<title>MedX India</title>
+
+	<!-- Meta tags -->
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<!-- Style -->
+	<link rel="stylesheet" href="/stylesheets/login.css" type="text/css" media="all" />
+</head>
+
+<body>
+<!-- signup form -->
+	<section class="w3l-signup-form">
+		<div id="form-section">
+			<div class="wrapper">
+
+				<!-- logo -->
+				<div class="logo">
+					<a class="brand-logo" href="index.html">Login Your Account</a>
+				</div>
+				<!-- //logo -->
+
+				<!-- form -->
+				<div class="login-form">
+						{{#if error}}
+          <p class="error-message" style=" margin-left: 10rem;
+    color: red;">{{error}}</p>
+          {{/if}}
+					<form action="/signup" method="post">
+						<div class="form-fields d-grid">
+                            <input type="text" name="username" placeholder="Username" required="required" />
+							<input type="email" name="email" placeholder="Email" required="required" />
+							<input type="password" name="password" placeholder="Password" required="required" />
+							<input type="password" name="confirmPassword" placeholder="Confirm Password" required="required" />
+						</div>
+						<button type="submit">signup</button>
+					</form>
+				
+				</div>
+				<div class="new-signup">
+					<p class="signup">You Are Already User <a href="/login" class="signuplink">Back To Login</a></p>
+				</div>
+				<!-- //form -->
+
+				<!-- copyright -->
+				<div class="copy-right">
+					<p>&copy; 2023 All rights reserved | Design by <a href="" target="_blank">MedX India</a></p>
+				</div>
+				<!-- //copyright -->
+
+			</div>
+		</div>
+	</section>
+	
+	<!-- /signup form -->
+</body>
+
+</html>

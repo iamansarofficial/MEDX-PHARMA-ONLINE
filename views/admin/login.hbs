@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+	<title>MedX India</title>
+
+	<!-- Meta tags -->
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<!-- Style -->
+	<link rel="stylesheet" href="/stylesheets/login.css" type="text/css" media="all" />
+</head>
+
+<body>
+	<!-- signup form -->
+	<section class="w3l-signup-form">
+		<div id="form-section">
+			<div class="wrapper">
+
+				<!-- logo -->
+				<div class="logo">
+					<a class="brand-logo" href="index.html">Login Your Account</a>
+				</div>
+				<!-- //logo -->
+
+				<!-- form -->
+				<div class="login-form">
+					<form action="/admin/adminLogin" method="POST">
+					{{#if loginErr}}
+               <p class="error fadeIn second" style="color: orangered; margin-left: 11rem;">{{loginErr}}</p>
+            {{/if}}
+						<div class="form-fields d-grid">
+							<input id="username" type="email" name="email" placeholder="Email" required="required" />
+							<input id="password" type="password" name="password" placeholder="Password" required="required" />
+						</div>
+						<button type="submit">Login</button>
+					</form>
+				</div>
+				
+				<!-- //form -->
+
+				<!-- copyright -->
+				<div class="copy-right">
+					<p>&copy; 2023 All rights reserved | Design by <a href="" target="_blank">MedX India</a></p>
+				</div>
+				<!-- //copyright -->
+
+			</div>
+		</div>
+	</section>
+	{{!-- <script src="/smtp.js"></script>
+	<button onclick="sendEmail()">SEND EMAIL</button> --}}
+	<!-- /signup form -->
+</body>
+
+</html>
