@@ -30,6 +30,7 @@ const objectId = require("mongodb").ObjectId;
 var db=require("../config/connection");
 var collection=require("../config/collections");
 const { ObjectId } = require("mongodb");
+const adminHelpers = require("../helpers/admin-helpers");
 
 const verifyLogin=function(req,res,next){
   if(req.session.user.loggedIn){
@@ -66,7 +67,7 @@ const goToLoginIfNotLoggedIn = (req, res, next) => {
 
 
 
-
+//USER HOME PAGE
 router.get("/", async function (req, res, next) {
   let user = req.session.user;
   let banner = await userHelpers.getBanners();
@@ -74,55 +75,18 @@ router.get("/", async function (req, res, next) {
   res.render("user/user-home", { banner, user, loggedIn: req.session.user?.loggedIn });
 });
 
-
-
-// ORGINAL ROUTER OF PRODUCT LISTING
-// router.get("/products", async function (req, res, next) {
-//   let user = req.session.user;
-//   console.log(user);
-//   let cartCount = null;
-
-//   const search = req.query.search;
-//   const category = req.query.category; // Get the category from the query parameter
-
-//   if (req.session.user) {
-//     cartCount = await userHelpers.getCartCount(req.session.user._id);
-//   }
-
-//   const query = {};
-
-//   if (search) {
-//     query.Name = { $regex: search, $options: 'i' };
-//   }
-
-//   if (category) {
-//     query.Category = category; // Add the category filter to the query
-//   }
-
-//   const categories = await userHelpers.getAllCategories();
-//   productHelpers.getAllProducts(query).then((products) => {
-//     res.render("user/view-products", {
-//       products,
-//       categories,
-//       cartCount,
-//       user,
-//       user: true,
-//       loggedIn: req.session.user?.loggedIn,
-//     });
-//   });
-// });
-
-
-//ADD PAGINATION CODE al most working code
+// //PRODUCT LIST PAGE ORGINAL
 // router.get("/products", async function (req, res, next) {
 //   let user = req.session.user;
 //   let cartCount = null;
 
 //   const search = req.query.search;
 //   const category = req.query.category;
-//   const page = parseInt(req.query.page) || 1; // Current page number
+//   let currentPage = parseInt(req.query.page) || 1; // Current page number
 //   const limit = 3; // Number of products per page
 
+//   console.log("req.query.page:", req.query.page);
+//   console.log("currentPage:", currentPage);
 //   if (req.session.user) {
 //     cartCount = await userHelpers.getCartCount(req.session.user._id);
 //   }
@@ -139,10 +103,15 @@ router.get("/", async function (req, res, next) {
 
 //   const categories = await userHelpers.getAllCategories();
 
-//   productHelpers.getPaginatedProducts(query, page, limit).then((result) => {
+//   productHelpers.getPaginatedProducts(query, currentPage, limit).then((result) => {
 //     const products = result.products;
 //     const totalCount = result.totalCount;
 //     const totalPages = Math.ceil(totalCount / limit);
+
+//     // Ensure currentPage is within valid range
+//     if (currentPage > totalPages) {
+//       currentPage = totalPages;
+//     }
 
 //     res.render("user/view-products", {
 //       products,
@@ -151,12 +120,11 @@ router.get("/", async function (req, res, next) {
 //       user,
 //       user: true,
 //       loggedIn: req.session.user?.loggedIn,
-//       currentPage: parseInt(page), // Convert to number
-//       totalPages: parseInt(totalPages), // Convert to number
+//       currentPage,
+//       totalPages,
 //     });
 //   });
 // });
-
 
 router.get("/products", async function (req, res, next) {
   let user = req.session.user;
@@ -186,7 +154,13 @@ router.get("/products", async function (req, res, next) {
   const categories = await userHelpers.getAllCategories();
 
   productHelpers.getPaginatedProducts(query, currentPage, limit).then((result) => {
-    const products = result.products;
+    const products = result.products.map((product) => {
+      return {
+        ...product,
+        STOCK: product.Quantity > 0,
+      };
+    });
+
     const totalCount = result.totalCount;
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -208,10 +182,6 @@ router.get("/products", async function (req, res, next) {
   });
 });
 
-
-
-
-
 // USER LOGIN 
 router.get("/login", goToHomeIfLoggedIn, (req, res) => {
   if (req.session.user) {
@@ -226,12 +196,12 @@ router.get("/login", goToHomeIfLoggedIn, (req, res) => {
 });
 
 
-//USER SIGN UP orginal
+//USER SIGN UP GET ROUTER
 router.get("/signup", goToHomeIfLoggedIn, (req, res) => {
   res.render("user/signup");
 });
 
-//USER SIGN UP WITH PROPER VALIDATION orginal
+//USER SIGN UP POST ROUTER WITH PROPER VALIDATION 
 router.post("/signup", goToHomeIfLoggedIn, async (req, res) => {
   const password = req.body.password;
   if (password.length < 8) {
@@ -250,28 +220,7 @@ router.post("/signup", goToHomeIfLoggedIn, async (req, res) => {
 
 
 
-//ORGINAL LOGIN HIDED
-// router.post("/login", goToHomeIfLoggedIn, (req, res) => {
-//   userHelpers.doLogin(req.body).then((response) => {
-//     if (response.status) {
-//       req.session.user = response.user;
-//       req.session.user.loggedIn = true;
-//       // res.redirect("/");
-//       // res.render('user/verify-email')
-//       if(response.user?.isVerified) {
-//         res.redirect('/');
-//       } else {
-//         res.redirect('/verify-email?email=' + encodeURIComponent(req.body.email));
-//         // res.redirect('/verify-email',{ email: req.body.email });
-//       }
-//     } else {
-//       req.session.userLoginErr = "Invalid Username or Password";
-//       res.redirect("/login");
-//     }
-//   });
-// });
-
-//TESTING LOGIN:
+//USER LOGIN POST ROUTER:
 router.post("/login", goToHomeIfLoggedIn, (req, res) => {
   userHelpers.doLogin(req.body).then((response) => {
     if (response.status) {
@@ -290,7 +239,7 @@ router.post("/login", goToHomeIfLoggedIn, (req, res) => {
   });
 });
 
-
+//USER LOGOUT ROUTER
 router.get("/logout", goToLoginIfNotLoggedIn, (req, res) => {
   req.session.destroy(err => {
     if(err) console.log(err);
@@ -298,24 +247,14 @@ router.get("/logout", goToLoginIfNotLoggedIn, (req, res) => {
   });
 });
 
-
-
-
-
-
-// //VERIFYING OTP ORGINAL======================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// router.get('/verify-email', goToHomeIfNotLoggedInOrVerified, (req, res) => {
-//   res.render('user/verify-email');
-// })
-
-//TESTING GET VERIFY ROUTER:
+//OTP VERIFYING GET ROUTER:
 router.get('/verify-email/:email', goToHomeIfNotLoggedInOrVerified, (req, res) => {
   const email = req.params.email; // Get the email from the URL parameter
   // Render the verify-email page with the email value
   res.render('user/verify-email', { email });
 });
 
-
+//OTP VERIYING POST ROUTER
 router.post('/verify-email', goToHomeIfNotLoggedInOrVerified, async (req, res) => {
   // res.send('verification')
   const user = await db.get().collection(collection.USER_COLLECTION).findOne({email:req.body.email})
@@ -335,29 +274,7 @@ router.post('/verify-email', goToHomeIfNotLoggedInOrVerified, async (req, res) =
 
 })
 
-
-//---------------------------------------------------------------------------------
-// router.get('/resendOtp', async (req, res) => {
-//   try {
-//     const response = await userHelpers.resendOtp(req.session.email);
-//     console.log(response);
-//     return res.redirect("/verify-email");
-//   } catch (error) {
-//     return res.render("user/signup", { error: error.message });
-//   }
-// });
-
-// router.post('/resendOtp/:email', async (req, res) => {
-//   try {
-//    const email= req.params.email
-//     const response = await userHelpers.resendOtp(email);
-//     console.log(response);
-//     return res.redirect("/verify-email");
-//   } catch (error) {
-//     return res.render("user/signup", { error: error.message });
-//   }
-// });
-
+//OTP RESEND POST ROUTER
 router.post('/resendOtp/:email', async (req, res) => {
   try {
     const email = req.params.email; // Get the email from the URL parameter
@@ -370,21 +287,14 @@ router.post('/resendOtp/:email', async (req, res) => {
   }
 });
 
-
-
 //-------------------------------------------------------------------------
 
 //SINGLE PRODUCT VIEW
 router.get("/detail-view/:id",async function(req,res,next){
   console.log("Productpage..........");
-  // console.log("View order Products.....");
-  // let products = await userHelpers.getOrderProducts(req.params.id)
-  // res.render('user/view-order-products', { user: req.session.user, products })
   let product=await userHelpers.getProduct(req.params.id)
   res.render("user/detail-view",{user:req.session.user,product})
 })
-
-
 
 //USER CART
 router.get("/cart",async function(req, res) {
@@ -410,29 +320,13 @@ router.get('/add-to-cart/:id',function(req,res){
     })
 })
 
-
-// //CHANGE PRODUCT QUANTITY ORGINAL CODE
-// router.post('/change-product-quantity',function(req,res,next){
-//   console.log(req.body);
-//   userHelpers.changeProductQuantity(req.body).then(async(response)=>{
-//     response.total= await userHelpers.getTotalAmount(req.body.user)
-//     res.json(response)
-//   })  
-// })
-// // CHANGE PRODUCT QUANTITY FIRST TEST
-// router.post('/change-product-quantity', function(req, res, next) {
-//   userHelpers.changeProductQuantity(req.body).then(async (response) => {
-//     response.total = await userHelpers.getTotalAmount(req.body.user);
-//     res.json(response);
-//   });
-// });
+//CHANGING PRODUCT QUANTITY ROUTER
 router.post('/change-product-quantity', function (req, res, next) {
   userHelpers.changeProductQuantity(req.body).then(async (response) => {
     response.total = await userHelpers.getTotalAmount(req.body.user);
     res.json(response);
   });
 });
-
 
 //REMOVE FROM CART
 router.post('/remove-from-cart', function(req, res, next) {
@@ -441,35 +335,7 @@ router.post('/remove-from-cart', function(req, res, next) {
   });
 });
 
-
-
-
-// //PLACING ORDER ORGINAL
-// router.get('/place-order', async (req, res) => {
-//   if (req.session.user) {
-//     let products = await userHelpers.getCartProducts(req.session.user._id);
-//     let total = await userHelpers.getTotalAmount(req.session.user._id);
-//     console.log("Total Amount to be Paid: " + total);
-//     res.render('user/place-order', { products, total, user: req.session.user });
-//   } else {
-//     res.redirect('/login'); // or handle the case when the user is not authenticated
-//   }
-// });
-// // PLACING ORDER ORGINAL
-// router.get('/place-order', async (req, res) => {
-//   if (req.session.user) {
-//     let products = await userHelpers.getCartProducts(req.session.user._id);
-//     let total = await userHelpers.getTotalAmount(req.session.user._id);
-//     let addresses = await userHelpers.getUserAddress(req.session.user._id);
-//     console.log("Total Amount to be Paid: " + total);
-//     res.render('user/place-order', { products, total, user: req.session.user, addresses });
-//   } else {
-//     res.redirect('/login');
-//   }
-// });
-
-// PLACING ORDER COPY
-
+// PLACING ORDER ROUTER
 router.get('/place-order', async (req, res) => {
   if (req.session.user) {
     let products = await userHelpers.getCartProducts(req.session.user._id);
@@ -480,238 +346,15 @@ router.get('/place-order', async (req, res) => {
     console.log("Total Amount to be Paid: " + total);
     
     let useWallet = wallet.amount >= total;
-
     res.render('user/place-order', { products, total, user: req.session.user, addresses, wallet, useWallet });
   } else {
     res.redirect('/login');
   }
 });
 
+//orginal
 
-
-
-// //ORGINAL 
-// router.post('/place-order', async (req, res) => {
-//   let products = await userHelpers.getCartProductsList(req.body.userId)
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId)
-//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
-//     if (req.body['payment-method'] === 'COD') {
-//       res.json({ codSuccess: true })
-//     }
-//     else {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-//         res.json(response)
-
-//       })
-//     }
-
-//   })
-//   console.log(req.body)
-
-// })
-
-
-// // // //TESTING WORKING CODE
-// router.post('/place-order', async (req, res) => {
-//   let products = await userHelpers.getCartProductsList(req.body.userId);
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId);
-//   console.log(totalPrice);
-//   try {
-//     const orderId = await userHelpers.placeOrder(req.body, products, totalPrice);
-
-//     if (req.body['payment-method'] === 'COD') {
-      
-//       req.session.orderDetails = {
-        
-//         address: req.body.address,
-//         mobile: req.body.mobile,
-//         pincode: req.body.pincode,
-        
-//         totalAmount: totalPrice,
-//         orderStatus: 'Placed',
-//         paymentMethod: req.body['payment-method'],
-//         date: new Date().toISOString()
-//       };
-//       res.json({ codSuccess: true });
-//     } else {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-   
-//         req.session.orderDetails = {
-          
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-        
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: req.body['payment-method'],
-//           date: new Date().toISOString()
-//         };
-//         res.json({ razorpayResponse: response });
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: 'Failed to place the order' });
-//   }
-// });
-
-
-// //new code convert new code: working perfect
-// router.post('/place-order', async (req, res) => {
-//   let products = await userHelpers.getCartProductsList(req.body.userId)
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId)
-//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
-//     if (req.body['payment-method'] === 'COD') {
-//       req.session.orderDetails = {
-//         address: req.body.address,
-//         mobile: req.body.mobile,
-//         pincode: req.body.pincode,
-//         totalAmount: totalPrice,
-//         orderStatus: 'Placed',
-//         paymentMethod: req.body['payment-method'],
-//         date: new Date().toISOString()
-//       }
-//       res.json({ codSuccess: true })
-//     } else {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: req.body['payment-method'],
-//           date: new Date().toISOString()
-//         }
-//         res.json(response)
-//       })
-//     }
-//   })
-// })
-
-
-// // TIME 12.40 CREAET WALLET PAYMENT PLACE ORDER
-
-// router.post('/place-order', async (req, res) => {
-//   let wallet = await userHelpers.getWallet(req.session.user._id);
-//   let products = await userHelpers.getCartProductsList(req.body.userId)
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId)
-//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
-//     if (req.body['payment-method'] === 'COD') {
-//       req.session.orderDetails = {
-//         address: req.body.address,
-//         mobile: req.body.mobile,
-//         pincode: req.body.pincode,
-//         totalAmount: totalPrice,
-//         orderStatus: 'Placed',
-//         paymentMethod: req.body['payment-method'],
-//         date: new Date().toISOString()
-//       }
-//       res.json({ codSuccess: true })
-//     } else if(req.body['payment-method'] === 'ONLINE') {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: req.body['payment-method'],
-//           date: new Date().toISOString()
-//         }
-//         res.json(response)
-//       })
-//     }else {
-//       let walletAmount = wallet.amount;
-//       let newBalanceWallet = walletAmount - totalPrice;
-    
-//       userHelpers.minusWallet(req.session.user._id, newBalanceWallet).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: 'ONLINE', // Set the payment method as "ONLINE" instead of "WALLET"
-//           date: new Date().toISOString()
-//         }
-//         res.json({ codSuccess: true }); // Return the response as "codSuccess" for consistency with other payment methods
-//       });
-//     }
-    
-    
-    
-    
-//   })
-// })
-
-
-
-// //TIME 6.50 COUPON SENDING
-// router.post('/place-order', async (req, res) => {
-//   let wallet = await userHelpers.getWallet(req.session.user._id);
-//   let products = await userHelpers.getCartProductsList(req.body.userId);
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId);
-
-//   let user = await userHelpers.getUser(req.session.user._id);
-
-//   // Sending coupon based on user's purchasing amount
-//   let couponId = await userHelpers.getOneCoupon(totalPrice, user);
-
-//   if (couponId && !await userHelpers.checkUsed(couponId, user._id)) {
-//     // User hasn't used the coupon, so insert the coupon ID to the user collection
-//     await userHelpers.addCouponToUser(couponId, user._id);
-//   }
-
-
-//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
-//     if (req.body['payment-method'] === 'COD') {
-//       req.session.orderDetails = {
-//         address: req.body.address,
-//         mobile: req.body.mobile,
-//         pincode: req.body.pincode,
-//         totalAmount: totalPrice,
-//         orderStatus: 'Placed',
-//         paymentMethod: req.body['payment-method'],
-//         date: new Date().toISOString()
-//       };
-//       res.json({ codSuccess: true });
-//     } else if (req.body['payment-method'] === 'ONLINE') {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: req.body['payment-method'],
-//           date: new Date().toISOString()
-//         };
-//         res.json(response);
-//       });
-//     } else {
-//       let walletAmount = wallet.amount;
-//       let newBalanceWallet = walletAmount - totalPrice;
-    
-//       userHelpers.minusWallet(req.session.user._id, newBalanceWallet).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: 'ONLINE', // Set the payment method as "ONLINE" instead of "WALLET"
-//           date: new Date().toISOString()
-//         };
-//         res.json({ codSuccess: true }); // Return the response as "codSuccess" for consistency with other payment methods
-//       });
-//     }
-    
-//   });
-// });
-
-// //TIME 10.00 COUPON apply working
+//PLACE ORDER POST ROUTER
 router.post('/place-order', async (req, res) => {
   let wallet = await userHelpers.getWallet(req.session.user._id);
   let products = await userHelpers.getCartProductsList(req.body.userId);
@@ -787,22 +430,10 @@ router.post('/place-order', async (req, res) => {
 
 
 
-
-
-
-
-// //RENDER ORDER SUCCESS PAGE ORGINAL
-// router.get('/order-success', (req, res) => {
-//   res.render('user/order-success', { user: req.session.user })
-// })
-
-
-
-//TESTING
+//ORDER SUCCES GET ROUTER
 router.get('/order-success', (req, res) => {
   res.render('user/order-success', { orderDetails: req.session.orderDetails });
 });
-
 
 //DOWNLOAD INVOICE
 router.get('/download-invoice', (req, res) => {
@@ -831,26 +462,7 @@ router.get('/download-invoice', (req, res) => {
 });
 
 
-
-// //GET USER ORDERS ORGINAL 
-// router.get('/orders', async (req, res) => {
-//   let orders = await userHelpers.getUserOrders(req.session.user._id);
-//   res.render('user/orders', { user: req.session.user, orders });
-// });
-// // GET USER ORDERS
-// router.get('/orders', async (req, res) => {
-//   let orders = await userHelpers.getUserOrders(req.session.user._id);
-  
-//   // Add a property 'canReturn' to each order object
-//   orders = orders.map(order => {
-//     order.canReturn = order.status === 'delivered';
-//     return order;
-//   });
-
-//   res.render('user/orders', { user: req.session.user, orders });
-// });
-
-// GET USER ORDERS ORGINAL
+// GET USER ORDERS 
 router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
   let orders = await userHelpers.getUserOrders(req.session.user._id);
 
@@ -872,22 +484,19 @@ router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
   res.render('user/orders', { user: req.session.user, orders });
 });
 
-
-
-
-
+//VIEW ORDER PRODUCTS
 router.get('/view-order-products/:id',async(req,res)=>{
   console.log("view order products");
   let products = await userHelpers.getOrderProducts(req.params.id)
   res.render('user/view-order-products',{user:req.session.user,products})
 })
 
-
 // FORGOT PASSWORD
 router.get('/updatePass', (req, res) => {
   res.render('user/update-password');
 });
 
+//UPDATE PASSWORD
 router.post('/updatePass', async (req, res) => {
   try {
     const { email, newPass } = req.body;
@@ -907,7 +516,6 @@ router.post('/updatePass', async (req, res) => {
   }
 });
 
-
 //REMOVE ORDER FROM USER SIDE
 router.get('/removeOrder/:orderId', async (req, res) => {
   const userId = req.session.user._id;
@@ -921,7 +529,7 @@ router.get('/removeOrder/:orderId', async (req, res) => {
   }
 });
 
-
+//REMOVE ORDER POST ROUTER
 router.post('/removeOrder/:orderId', (req, res) => {
   const orderId = req.params.orderId;
   const userId = req.body.userId;
@@ -937,17 +545,12 @@ router.post('/removeOrder/:orderId', (req, res) => {
     });
 });
 
-
-
-
 //RENDERING USER PROFILE
 router.get('/profile', async(req, res) => {
 
   const isVerified = req.session.user.isVerified; // Replace with your verification logic
   res.render('user/profile', { user: req.session.user, isVerified: isVerified });
 });
-
-
 
 //VERIFYING USER PAYMENT
 router.post('/verify-payment', (req, res) => {
@@ -964,7 +567,7 @@ router.post('/verify-payment', (req, res) => {
 
 })
 
-
+//RETURN ORDER ROUTER
 router.get('/returnOrder/:orderId', async (req, res) => {
   const userId = req.session.user._id;
   const orderId = req.params.orderId;
@@ -976,23 +579,8 @@ router.get('/returnOrder/:orderId', async (req, res) => {
     res.send("An error occurred while fetching user orders. Please try again.");
   }
 });
-//ORGINAL return Post
-// router.post('/returnOrder/:id/return', async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const reason = req.body.reason;
-//     await userHelpers.updateStatus(orderId, 'return');
-//     // Add code to handle the return reason, such as saving it to the database
-//     res.redirect('/orders');
-//   } catch (error) {
-//     console.error('Error updating order status:', error);
-//     res.send("An error occurred while updating the order status. Please try again.");
-//   }
-// });
 
-
-//TESTING ADD THE RETURN PRODUCT AMOUNT TO WALLET AMOUNT
-// post router of this:
+//RETURN POST ROUTER
 router.post('/returnOrder/:id/return', async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -1020,7 +608,7 @@ router.post('/returnOrder/:id/return', async (req, res) => {
   }
 });
 
-
+//ADD ADDRESS ROUTER
 router.post('/addAddress/:id', async (req, res) => {
   try {
     const userId = req.params.id;
@@ -1039,24 +627,21 @@ router.post('/addAddress/:id', async (req, res) => {
   }
 });
 
+//WALLET GET ROUTER
 router.get('/wallet',goToLoginIfNotLoggedIn,  async (req, res) => {
   const userId = req.session.user._id;
   const wallet = await userHelpers.getWallet(userId);
   res.render('user/wallet', { wallet }); // Pass the wallet data to the template
 });
 
-
-// router.get('/coupon', async (req, res) => {
-//   const userId = req.session.user._id; // Assuming the user ID is stored in req.session.user._id
-//   const coupons = await userHelpers.getUserCoupons(userId);
-//   res.render('user/coupon', { coupons });
-// });
+//COUPON GET ROUTER
 router.get('/coupon',goToLoginIfNotLoggedIn, async (req, res) => {
   const userId = req.session.user._id;
   const coupons = await userHelpers.getUserCoupons(userId);
   res.render('user/coupon', { coupons });
 });
 
+//EDIT ADDRESS ROUTER
 router.get('/edit-address/:orderAddressId', async (req, res) => {
   const orderAddressId = req.params.orderAddressId;
   
@@ -1064,7 +649,8 @@ let address= await userHelpers.getOrderAddress(orderAddressId)
    console.log(address);
   res.render('user/editAddress', { orderAddressId, address: address });
 });
-//UPDATE ADDRESS
+
+//UPDATE ADDRESS ROUTER
 router.post('/update-address/:orderAddressId', async (req, res) => {
   const orderAddressId = req.params.orderAddressId;
   const updatedAddress = {
@@ -1078,7 +664,7 @@ router.post('/update-address/:orderAddressId', async (req, res) => {
   res.redirect('/place-order');
 });
 
-
+//DELETE ADDRESS ROUTER
 router.get('/delete-address/:id', async (req, res) => {
   const addressId = req.params.id;
   await userHelpers.deleteAddress(addressId);

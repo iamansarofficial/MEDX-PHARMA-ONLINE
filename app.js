@@ -18,51 +18,7 @@ var app = express();
 const nodemailer = require('nodemailer');
 
 
-// handlebars.registerHelper('gte', function (a, b) {
-//   return a >= b;
-// });
 
-// handlebars.registerHelper('subtract', function (a, b) {
-//   return a - b;
-// });
-
-// handlebars.registerHelper('eq', function (a, b) {
-//   return a === b;
-// });
-
-// handlebars.registerHelper('add', function (a, b) {
-//   return parseInt(a) + parseInt(b);
-// });
-
-
-// handlebars.registerHelper('times', function (n, block) {
-//   let accum = '';
-//   for (let i = 0; i < n; ++i) {
-//     accum += block.fn(i);
-//   }
-//   return accum;
-// });
-// handlebars.registerHelper('parseInt', function (value) {
-//   return parseInt(value);
-// });
-
-// handlebars.registerHelper('or', function () {
-//   const args = Array.prototype.slice.call(arguments, 0, -1);
-//   return args.some(Boolean);
-// });
-
-// handlebars.registerHelper('gt', function (a, b) {
-//   return a > b;
-// });
-
-// handlebars.registerHelper('lt', function (a, b) {
-//   return a < b;
-// });
-
-// handlebars.registerHelper('and', function () {
-//   const args = Array.prototype.slice.call(arguments, 0, -1);
-//   return args.every(Boolean);
-// });
 
 handlebars.registerHelper('gte', function (a, b) {
   return a >= b;
@@ -110,6 +66,14 @@ handlebars.registerHelper('and', function () {
   return args.every(Boolean);
 });
 
+// Define the "lte" helper
+handlebars.registerHelper('lte', function (value1, value2, options) {
+  if (value1 <= value2) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

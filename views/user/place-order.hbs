@@ -159,25 +159,7 @@
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
 
-            <!---HEADER FINISHED--->
-            <!--MAIN CONTENT STARTED-->
-
-{{!-- 
-  <main class="main">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
-        		<div class="container">
-        			<h1 class="page-title">Checkout<span>Shop</span></h1>
-        		</div><!-- End .container -->
-        	</div><!-- End .page-header -->
-            <nav aria-label="breadcrumb" class="breadcrumb-nav">
-                <div class="container">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#">Shop</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Checkout</li>
-                    </ol>
-                </div><!-- End .container -->
-            </nav><!-- End .breadcrumb-nav --> --}}
+            
 
             <div class="page-content">
             	<div class="checkout">
@@ -535,157 +517,11 @@
         </footer><!-- End .footer -->
 
 
-
-             {{!-- <footer class="footer">
-        	<div class="footer-middle">
-	            <div class="container">
-	            	<div class="row">
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget widget-about">
-	            				<img src="/product-list/asset/images/logo.png" class="footer-logo" alt="Footer Logo" width="105" height="25">
-	            				<p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. </p>
-
-	            				<div class="social-icons">
-	            					<a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Pinterest"><i class="icon-pinterest"></i></a>
-	            				</div><!-- End .soial-icons -->
-	            			</div><!-- End .widget about-widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget">
-	            				<h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
-
-	            				<ul class="widget-list">
-	            					<li><a href="about.html">About Molla</a></li>
-	            					<li><a href="#">How to shop on Molla</a></li>
-	            					<li><a href="#">FAQ</a></li>
-	            					<li><a href="contact.html">Contact us</a></li>
-	            					<li><a href="login.html">Log in</a></li>
-	            				</ul><!-- End .widget-list -->
-	            			</div><!-- End .widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget">
-	            				<h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
-
-	            				<ul class="widget-list">
-	            					<li><a href="#">Payment Methods</a></li>
-	            					<li><a href="#">Money-back guarantee!</a></li>
-	            					<li><a href="#">Returns</a></li>
-	            					<li><a href="#">Shipping</a></li>
-	            					<li><a href="#">Terms and conditions</a></li>
-	            					<li><a href="#">Privacy Policy</a></li>
-	            				</ul><!-- End .widget-list -->
-	            			</div><!-- End .widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget">
-	            				<h4 class="widget-title">My Account</h4><!-- End .widget-title -->
-
-	            				<ul class="widget-list">
-	            					<li><a href="#">Sign In</a></li>
-	            					<li><a href="cart.html">View Cart</a></li>
-	            					<li><a href="#">My Wishlist</a></li>
-	            					<li><a href="#">Track My Order</a></li>
-	            					<li><a href="#">Help</a></li>
-	            				</ul><!-- End .widget-list -->
-	            			</div><!-- End .widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-	            	</div><!-- End .row -->
-	            </div><!-- End .container -->
-	        </div><!-- End .footer-middle -->
-
-	        <div class="footer-bottom">
-	        	<div class="container">
-	        		<p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p><!-- End .footer-copyright -->
-	        		<figure class="footer-payments">
-	        			<img src="/product-list/asset/images/payments.png" alt="Payment methods" width="272" height="20">
-	        		</figure><!-- End .footer-payments -->
-	        	</div><!-- End .container -->
-	        </div><!-- End .footer-bottom -->
-        </footer><!-- End .footer --> --}}
          <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
 
 
 
-
-{{!-- <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-     $("#checkout-form").submit((e) => {
-        e.preventDefault()
-        $.ajax({
-            url: '/place-order',
-            method: 'post',
-            data: $('#checkout-form').serialize(),
-            success: (response) => {
-                alert("Continue With Online payment")
-                if (response.codSuccess) {
-                    location.href = '/order-success'
-                }
-                else {
-                    
-                    razorpayPayment(response)
-                }
-            }
-        })
-    })
-function razorpayPayment(order) {
-        var options = {
-            "key": "rzp_test_MAq0flEggJKy5L", // Enter the Key ID generated from the Dashboard
-            "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-            "currency": "INR",
-            "name": "Med X Pharma",
-            "description": "Test Transaction",
-            "image": "",
-            "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-            "handler": function (response) {
-               
-                verifyPayment(response,order)
-            },
-            "prefill": {
-                "name": "admin",
-                "email": "admin@example.com",
-                "contact": "9999999999"
-            },
-            "notes": {
-                "address": "Med x Pharma India"
-            },
-            "theme": {
-                "color": "#3399cc"
-            }
-        };
-        var rzp1 = new Razorpay(options);
-        rzp1.open();
-    }
-    function verifyPayment(payment,order){
-        $.ajax({
-            url:'/verify-payment',
-            data:{
-                payment,
-                order,
-            
-            },
-            method:'post',
-            success:(response)=>{
-                if(response.status){
-                    location.href = '/order-success'
-                }else{
-                    
-                    alert("payment failed")
-                    location.href='/'
-                }
-            }
-        })
-    }
-
-</script> --}}
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
@@ -799,30 +635,6 @@ function razorpayPayment(order) {
   }
 </script>
 
-
-{{!-- 
-<script>
-  document.getElementById('addAddressBtn').addEventListener('click', function(event) {
-    event.preventDefault();
-    const userId = "{{user._id}}";
-    const url = `/addAddress/${userId}`;
-
-    // Send AJAX POST request
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        // Success: Refresh the page
-        location.reload();
-      } else {
-        // Error: Show error message
-        console.error('Error adding address:', xhr.responseText);
-      }
-    };
-    xhr.send();
-  });
-</script> --}}
 
 
 

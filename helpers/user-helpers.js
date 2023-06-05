@@ -238,34 +238,73 @@ resendOtp: (email) => {
     })
 },
 
-//CHANGE PRODUCT QAUNTITY HELPER METHOD
-changeProductQuantity:(details)=>{
-  details.count=parseInt(details.count)
-  details.quantity=parseInt(details.quantity)
-  return new Promise((resolve,reject)=>{
-      if(details.count==-1 && details.quantity==1){
-          db.get().collection(collection.CART_COLLECTION).updateOne({_id:ObjectId(details.cart)},
-          {
-              $pull:{products:{item:ObjectId(details.product)}}
-          }
-          ).then((response)=>{
-              resolve({removeProduct:true})
-          })
+// //CHANGE PRODUCT QAUNTITY HELPER METHOD
+// changeProductQuantity:(details)=>{
+//   details.count=parseInt(details.count)
+//   details.quantity=parseInt(details.quantity)
+//   console.log("hello");
+//   console.log(details);
+//   console.log("hai");
+//   return new Promise((resolve,reject)=>{
+//       if(details.count==-1 && details.quantity==1){
+//           db.get().collection(collection.CART_COLLECTION).updateOne({_id:ObjectId(details.cart)},
+//           {
+//               $pull:{products:{item:ObjectId(details.product)}}
+//           }
+//           ).then((response)=>{
+//               resolve({removeProduct:true})
+//           })
           
-      }else{
-          db.get().collection(collection.CART_COLLECTION).updateOne({_id:ObjectId(details.cart),'products.item':ObjectId(details.product)},
-              {
-                  $inc:{'products.$.quantity':details.count}
-              }
-              ).then((response)=>{
-                  resolve({status:true})
-              })
+//       }else{
+//           db.get().collection(collection.CART_COLLECTION).updateOne({_id:ObjectId(details.cart),'products.item':ObjectId(details.product)},
+//               {
+//                   $inc:{'products.$.quantity':details.count}
+//               }
+//               ).then((response)=>{
+//                   resolve({status:true})
+//               })
       
-      }
+//       }
       
-  })
-},
+//   })
+// },
+changeProductQuantity: (details) => {
+  details.count = parseInt(details.count);
+  details.quantity = parseInt(details.quantity);
 
+  return new Promise((resolve, reject) => {
+    if (details.count === -1 && details.quantity === 1) {
+      // Remove the product from the cart if count is -1 and quantity is 1
+      db.get().collection(collection.CART_COLLECTION).updateOne(
+        { _id: ObjectId(details.cart) },
+        { $pull: { products: { item: ObjectId(details.product) } } }
+      ).then((response) => {
+        resolve({ removeProduct: true });
+      });
+    } else {
+      // Fetch the available quantity for the product
+      db.get().collection(collection.PRODUCT_COLLECTION).findOne(
+        { _id: ObjectId(details.product) },
+        { Quantity: 1 }
+      ).then((product) => {
+        const availableQuantity = product.Quantity;
+        if (details.quantity + details.count <= availableQuantity) {
+          db.get().collection(collection.CART_COLLECTION).updateOne(
+            { _id: ObjectId(details.cart), 'products.item': ObjectId(details.product) },
+            { $inc: { 'products.$.quantity': details.count } }
+          ).then((response) => {
+            resolve({ status: true });
+          });
+        } else {
+          resolve({ status: false, error: 'Quantity exceeds available stock' });
+        }
+      }).catch((error) => {
+        reject(error);
+      });
+    }
+  });
+}
+,
 
 //REMOVE FROM CART HELPER METHOD
 removeFromCart: (details) => {
@@ -402,33 +441,101 @@ getCartProductsList:(userId)=>{
     })
 },
 
-//PLACING ORDER HELPER METHOD ORGINAL
-placeOrder:(order,products,total)=>{
-  return new Promise((resolve,response)=>{
-      let status=order['payment-method']==='COD'?'placed':'pending'
-      let orderObj={
-          deliveryDetails:{
-              mobile:order.mobile,
-              address:order.address,
-              pincode:order.pincode
-          },
-          userId:ObjectId(order.userId),
-          paymentMethod:order['payment-method'],
-          products:products,
-          totalAmount:total,
-          status:status,
-          date:new Date()
-      }
+// //PLACING ORDER HELPER METHOD ORGINAL
+// placeOrder:(order,products,total)=>{
+//   return new Promise((resolve,response)=>{
+//     console.log(products);
+//       let status=order['payment-method']==='COD'?'placed':'pending'
+//       let orderObj={
+//           deliveryDetails:{
+//               mobile:order.mobile,
+//               address:order.address,
+//               pincode:order.pincode
+//           },
+//           userId:ObjectId(order.userId),
+//           paymentMethod:order['payment-method'],
+//           products:products,
+//           totalAmount:total,
+//           status:status,
+//           date:new Date()
+//       }
 
-      db.get().collection(collection.ORDER_COLLCETION).insertOne(orderObj).then((response)=>{
-          db.get().collection(collection.CART_COLLECTION).deleteOne({user:ObjectId(order.userId)})
-          resolve(response.insertedId)
+//       db.get().collection(collection.ORDER_COLLCETION).insertOne(orderObj).then((response)=>{
+//           db.get().collection(collection.CART_COLLECTION).deleteOne({user:ObjectId(order.userId)})
+//           resolve(response.insertedId)
+//       })
+//   })
+// },
+
+placeOrder: (order, products, total) => {
+  return new Promise((resolve, reject) => {
+    let status = order['payment-method'] === 'COD' ? 'placed' : 'pending';
+
+    let orderObj = {
+      deliveryDetails: {
+        mobile: order.mobile,
+        address: order.address,
+        pincode: order.pincode
+      },
+      userId: ObjectId(order.userId),
+      paymentMethod: order['payment-method'],
+      products: products,
+      totalAmount: total,
+      status: status,
+      date: new Date()
+    };
+
+    db.get()
+      .collection(collection.ORDER_COLLCETION)
+      .insertOne(orderObj)
+      .then((response) => {
+        let orderId = response.insertedId;
+
+        // Update product quantities
+        let updatePromises = products.map((product) => {
+          return new Promise((resolve, reject) => {
+            let productId = ObjectId(product.item);
+            let purchasedQuantity = product.quantity;
+
+            db.get()
+              .collection(collection.PRODUCT_COLLECTION)
+              .findOneAndUpdate(
+                { _id: productId },
+                { $inc: { Quantity: -purchasedQuantity } }
+              )
+              .then(() => {
+                console.log(`Updating product ${productId} quantity by ${purchasedQuantity}`);
+                resolve();
+              })
+              .catch((error) => {
+                reject(error);
+              });
+          });
+        });
+
+        Promise.all(updatePromises)
+          .then(() => {
+            // Clear the user's cart
+            db.get()
+              .collection(collection.CART_COLLECTION)
+              .deleteOne({ user: ObjectId(order.userId) })
+              .then(() => {
+                resolve(orderId);
+              })
+              .catch((error) => {
+                reject(error);
+              });
+          })
+          .catch((error) => {
+            reject(error);
+          });
       })
-  })
-},
-
-
-
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+,
 
 //GET USERS ORDER HELPER METHOD
 getUserOrders: (userId) => {

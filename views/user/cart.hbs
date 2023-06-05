@@ -168,6 +168,7 @@
 	                <div class="container">
 	                	<div class="row">
 	                		<div class="col-lg-9">
+<div id="errorMessage" class="error-message" style="display: none;"></div>
 
 <table class="table table-cart table-mobile">
     <thead>
@@ -198,24 +199,19 @@
                 <td class="price-col">{{this.product.Price}}</td>
 
 
-<td class="quantity-col">
+
+
+
+ <td class="quantity-col">
   <!-- Quantity controls -->
   <button style="min-width: 96px;" class="cart-item-count mr-3 btn btn-outline-success" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user}}', -1)">-</button>
   <span id="{{this.product._id}}">{{this.quantity}}</span>
   <button style="min-width: 96px;" class="cart-item-count ml-3 btn btn-outline-success" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user}}', 1)">+</button>
-</td>
+</td> 
 
 
 
 
-                {{!-- <td class="quantity-col">
-                    <!-- Quantity controls -->
-                    <button style="min-width: 96px;" class="cart-item-count mr-3 btn btn-outline-success" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user}}',-1)">-</button> 
-                    <span id="{{this.product._id}}">{{this.quantity}}</span>
-                    <button style="min-width: 96px;" class="cart-item-count ml-3 btn btn-outline-success" onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{../user}}',1)">+</button>
-                </td> --}}
-                {{!-- <td class="total-col">{{totalValue}}</td> --}}
-                {{!-- <td class="total-col"><span id="total">{{totalValue}}</span></td> --}}
                 <td class="remove-col">
                     <button class="btn-remove" onclick="removeFromCart('{{this._id}}','{{this.product._id}}','{{../user}}')">
                         <i class="icon-close"></i>
@@ -230,6 +226,8 @@
 </tr>
 
         {{/if}}
+        
+
     </tbody>
 </table><!-- End .table table-wishlist -->
 
@@ -310,6 +308,9 @@
 	                				</table><!-- End .table table-summary -->
 
   {{#if products.length}}
+
+
+
             <a href="/place-order" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
         {{else}}
             <a href="/products" class="btn btn-outline-primary-2 btn-order btn-block">CONTINUE SHOPPING</a>
@@ -405,202 +406,13 @@
 	        </div><!-- End .footer-bottom -->
         </footer><!-- End .footer -->
 
-{{!-- 
-        <footer class="footer">
-        	<div class="footer-middle">
-	            <div class="container">
-	            	<div class="row">
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget widget-about">
-	            				<img src="/product-list/asset/images/logo.png" class="footer-logo" alt="Footer Logo" width="105" height="25">
-	            				<p>Praesent dapibus, neque id cursus ucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. </p>
-
-	            				<div class="social-icons">
-	            					<a href="#" class="social-icon" target="_blank" title="Facebook"><i class="icon-facebook-f"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Twitter"><i class="icon-twitter"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Instagram"><i class="icon-instagram"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Youtube"><i class="icon-youtube"></i></a>
-	            					<a href="#" class="social-icon" target="_blank" title="Pinterest"><i class="icon-pinterest"></i></a>
-	            				</div><!-- End .soial-icons -->
-	            			</div><!-- End .widget about-widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget">
-	            				<h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
-
-	            				<ul class="widget-list">
-	            					<li><a href="about.html">About Molla</a></li>
-	            					<li><a href="#">How to shop on Molla</a></li>
-	            					<li><a href="#">FAQ</a></li>
-	            					<li><a href="contact.html">Contact us</a></li>
-	            					<li><a href="login.html">Log in</a></li>
-	            				</ul><!-- End .widget-list -->
-	            			</div><!-- End .widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget">
-	            				<h4 class="widget-title">Customer Service</h4><!-- End .widget-title -->
-
-	            				<ul class="widget-list">
-	            					<li><a href="#">Payment Methods</a></li>
-	            					<li><a href="#">Money-back guarantee!</a></li>
-	            					<li><a href="#">Returns</a></li>
-	            					<li><a href="#">Shipping</a></li>
-	            					<li><a href="#">Terms and conditions</a></li>
-	            					<li><a href="#">Privacy Policy</a></li>
-	            				</ul><!-- End .widget-list -->
-	            			</div><!-- End .widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-
-	            		<div class="col-sm-6 col-lg-3">
-	            			<div class="widget">
-	            				<h4 class="widget-title">My Account</h4><!-- End .widget-title -->
-
-	            				<ul class="widget-list">
-	            					<li><a href="#">Sign In</a></li>
-	            					<li><a href="cart.html">View Cart</a></li>
-	            					<li><a href="#">My Wishlist</a></li>
-	            					<li><a href="#">Track My Order</a></li>
-	            					<li><a href="#">Help</a></li>
-	            				</ul><!-- End .widget-list -->
-	            			</div><!-- End .widget -->
-	            		</div><!-- End .col-sm-6 col-lg-3 -->
-	            	</div><!-- End .row -->
-	            </div><!-- End .container -->
-	        </div><!-- End .footer-middle -->
-
-	        <div class="footer-bottom">
-	        	<div class="container">
-	        		<p class="footer-copyright">Copyright © 2019 Molla Store. All Rights Reserved.</p><!-- End .footer-copyright -->
-	        		<figure class="footer-payments">
-	        			<img src="/product-list/asset/images/payments.png" alt="Payment methods" width="272" height="20">
-	        		</figure><!-- End .footer-payments -->
-	        	</div><!-- End .container -->
-	        </div><!-- End .footer-bottom -->
-        </footer><!-- End .footer --> --}}
          <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
 
 
 
-
-
-
-{{!-- <script>
-    function changeQuantity(cartId,proId,userId,count){
-        let quantity=parseInt(document.getElementById(proId).innerHTML)
-        count=parseInt(count)
-        
-        $.ajax({
-            url:'/change-product-quantity',
-            data:{
-                user:userId,
-                cart:cartId,
-                product:proId,
-                count:count,
-                quantity:quantity
-            },
-            method:'post',
-            success:(response)=>{    
-            if(response.removeProduct){
-                alert("Product Removed from cart")
-                location.reload()
-            }else{
-                document.getElementById(proId).innerHTML=quantity+count
-                document.getElementById('total').innerHTML=response.total
-            }
-            }
-        })
-    } 
-</script> --}} 
-
-
-{{!-- <script>
-
-
-  function changeQuantity(cartId, proId, userId, count) {
-    let quantity = parseInt(document.getElementById(proId).innerHTML);
-    count = parseInt(count);
-    
-    $.ajax({
-      url: '/change-product-quantity',
-      data: {
-        user: userId,
-        cart: cartId,
-        product: proId,
-        count: count,
-        quantity: quantity
-      },
-      method: 'post',
-      success: (response) => {    
-        if (response.removeProduct) {
-          alert("Product Removed from cart");
-          location.reload();
-        } else {
-          document.getElementById(proId).innerHTML = quantity + count;
-          document.getElementById('total').innerHTML = response.total;
-        }
-      }
-    });
-  }
-
-  function removeFromCart(cartId, proId, userId) {
-    if (confirm('Are you sure you want to remove this product from the cart?')) {
-      $.ajax({
-        url: '/remove-from-cart',
-        data: {
-          user: userId,
-          cart: cartId,
-          product: proId
-        },
-        method: 'post',
-        success: function(response) {
-          alert('Product removed from cart');
-          location.reload();
-        }
-      });
-    }
-  }
-</script> --}}
-
-
-
-
-<!--test the code for change the theam of alert-->
-{{!-- orginal code for change quantity
-<script>
-    function changeQuantity(cartId, proId, userId, count) {
-  let quantity = parseInt(document.getElementById(proId).innerHTML);
-  count = parseInt(count);
-
-  $.ajax({
-    url: '/change-product-quantity',
-    data: {
-      user: userId,
-      cart: cartId,
-      product: proId,
-      count: count,
-      quantity: quantity
-    },
-    method: 'post',
-    success: (response) => {
-      if (response.removeProduct) {
-        Swal.fire({
-          title: 'Product Removed from Cart',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 1500
-        }).then(() => location.reload());
-      } else {
-        document.getElementById(proId).innerHTML = quantity + count;
-        document.getElementById('total').innerHTML = response.total;
-      }
-    }
-  });
-} </script>--}}
-<script>
+{{!-- ORGINAL --}}
+ {{!-- <script>
 function changeQuantity(cartId, proId, userId, count) {
   let quantity = parseInt(document.getElementById(proId).innerHTML);
   count = parseInt(count);
@@ -630,8 +442,53 @@ function changeQuantity(cartId, proId, userId, count) {
       }
     }
   });
-}
+} 
 
+</script> --}}
+
+
+
+
+<script>
+
+function changeQuantity(cartId, proId, userId, count) {
+  let quantity = parseInt(document.getElementById(proId).innerHTML);
+  count = parseInt(count);
+
+  $.ajax({
+    url: '/change-product-quantity',
+    data: {
+      user: userId,
+      cart: cartId,
+      product: proId,
+      count: count,
+      quantity: quantity
+    },
+    method: 'post',
+    success: (response) => {
+      if (response.removeProduct) {
+        Swal.fire({
+          title: 'Product Removed from Cart',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500
+        }).then(() => location.reload());
+      } else if (response.error) {
+        Swal.fire({
+          title: 'Error',
+          text: response.error,
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 1500
+        });
+      } else {
+        document.getElementById(proId).innerHTML = quantity + count;
+        document.getElementById('subtotal').innerHTML = response.total;
+        document.getElementById('total').innerHTML = response.total;
+      }
+    }
+  });
+}
 
 
 

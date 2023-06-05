@@ -7,29 +7,6 @@ var catHelpers=require('../helpers/category-helpers')
 module.exports={
 
 
-  // //ADD PRODUCT ORGINAL
-  //   addProduct:(product,callback)=>{
-  //       console.log(product);
-  //       db.get().collection('product').insertOne(product).then((data)=>{
-  //           callback(data.insertedId)
-  //       })
-  //   },
-
-  // addProduct: (product, callback) => {
-  //   console.log(product);
-  //   db.get().collection('product').insertOne(product).then((data) => {
-  //     callback(data.insertedId);
-  //   });
-  // },
-  
-// // ADD PRODUCT orginal
-// addProduct: (product, callback) => {
-//   console.log(product);
-//   db.get().collection('product').insertOne(product).then((data) => {
-//     callback(data.insertedId);
-//   });
-// },
-
 // ADD PRODUCT updated
 addProduct: (product, callback) => {
   console.log(product);
@@ -43,13 +20,6 @@ addProduct: (product, callback) => {
   }
 },
 
-//ORGINAL 
-//     getAllProducts: () => {
-//   return new Promise(async (resolve, reject) => {
-//     let products = await db.get().collection(collection.PRODUCT_COLLECTION).find({ Listed: true, Category: { $ne: null } }).toArray();
-//     resolve(products);
-//   });
-// },
 
 
 //ADD PAGINATION
@@ -63,6 +33,7 @@ getAllProducts: () => {
     }
   });
 },
+//ORGINAL CODE
 getPaginatedProducts: (query, page, limit) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -86,6 +57,45 @@ getPaginatedProducts: (query, page, limit) => {
 },
 
 
+//TESTING
+getPaginatedProducts: (query, page, limit) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const collection = db.get().collection('product'); // Replace 'collection.PRODUCT_COLLECTION' with the actual collection name
+
+      const totalCount = await collection.countDocuments(query);
+
+      const products = await collection
+        .aggregate([
+          { $match: query },
+          {
+            $project: {
+              _id: 1,
+              Name: 1,
+              Category: 1,
+              Price: 1,
+              Description: 1,
+              Listed: 1,
+              Quantity: {
+                $cond: {
+                  if: { $lte: ['$Quantity', 0] },
+                  then: 0,
+                  else: '$Quantity',
+                },
+              },
+            },
+          },
+        ])
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray();
+
+      resolve({ products, totalCount });
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
 
 
   
@@ -107,21 +117,43 @@ getPaginatedProducts: (query, page, limit) => {
         })
     },
 
-    //UPDATE PRODUCTS
-    updateProduct:function(proId,proDetails){
-        return new Promise((function(resolve,reject){
-            db.get().collection(collection.PRODUCT_COLLECTION).updateOne({_id:objectId(proId)},{
-                $set:{
-                    Name:proDetails.Name,
-                    Description:proDetails.Description,
-                    Category:proDetails.Category,
-                    Price:proDetails.Price
-                }
-            }).then((response)=>{
-                resolve()
-            })
-        }))
-    },
+    // //UPDATE PRODUCTS
+    // updateProduct:function(proId,proDetails){
+    //     return new Promise((function(resolve,reject){
+    //         db.get().collection(collection.PRODUCT_COLLECTION).updateOne({_id:objectId(proId)},{
+    //           $set: {
+    //             Name: proDetails.Name,
+    //             Description: proDetails.Description,
+    //             Category: proDetails.Category,
+    //             Price: proDetails.Price,
+    //             Quantity: proDetails.Quantity
+    //         }
+    //         }).then((response)=>{
+    //             resolve()
+    //         })
+    //     }))
+    // },
+
+    updateProduct: function(proId, proDetails) {
+      return new Promise((resolve, reject) => {
+          const quantity = parseInt(proDetails.Quantity); // Convert Quantity to number
+          db.get().collection(collection.PRODUCT_COLLECTION).updateOne(
+              { _id: objectId(proId) },
+              {
+                  $set: {
+                      Name: proDetails.Name,
+                      Description: proDetails.Description,
+                      Category: proDetails.Category,
+                      Price: proDetails.Price,
+                      Quantity: quantity // Save the converted number
+                  }
+              }
+          ).then((response) => {
+              resolve();
+          });
+      });
+  },
+  
 
     //GET ALL CATEGORY
     getAllCategory:()=>{
@@ -132,32 +164,6 @@ getPaginatedProducts: (query, page, limit) => {
     },
   
 
-    // //ADD CATEGORY ORGINAL
-    // addCategory: (category, callback) => {
-    //     db.get()
-    //       .collection(collection.CATEGORY_MANAGEMENT)
-    //       .findOne({ Name: category.Name })
-    //       .then((result) => {
-    //         if (result) {
-    //           // Category name already exists
-    //           callback('Category name already exists');
-    //         } else {
-    //           db.get()
-    //             .collection(collection.CATEGORY_MANAGEMENT)
-    //             .insertOne(category)
-    //             .then((data) => {
-    //               callback(null, data.insertedId);
-    //             })
-    //             .catch((err) => {
-    //               callback(err);
-    //             });
-    //         }
-    //       })
-    //       .catch((err) => {
-    //         callback(err);
-    //       });
-    //   },
-  //UPDATE CASESENSITIVE:
   //ADD CATEGORY
 addCategory: (category, callback) => {
   const categoryName = category.Name;

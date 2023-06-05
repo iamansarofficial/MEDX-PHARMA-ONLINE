@@ -426,14 +426,30 @@ getAllCoupons: () => {
         }
       });
   });
+},
+
+// Helper method to update product quantities
+updateQuantity: async (productIds, purchasedQuantities) => {
+  try {
+    for (let i = 0; i < productIds.length; i++) {
+      const productId = productIds[i].$oid; // Get the product ID from the $oid property
+      const purchasedQuantity = purchasedQuantities[i];
+
+      await db.get().collection('product').updateOne(
+        { _id: ObjectId(productId) },
+        { $inc: { Quantity: -parseInt(purchasedQuantity) } }
+      );
+    }
+  } catch (error) {
+    console.error('Error updating product quantities:', error);
+    throw new Error('An error occurred while updating product quantities.');
+  }
 }
 
 
 
 
   
-  
-
 
 
 };
