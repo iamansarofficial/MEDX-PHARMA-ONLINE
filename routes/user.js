@@ -126,6 +126,72 @@ router.get("/", async function (req, res, next) {
 //   });
 // });
 
+
+//implimenting out of stock
+// router.get("/products", async function (req, res, next) {
+//   let user = req.session.user;
+//   let cartCount = null;
+
+//   const search = req.query.search;
+//   const category = req.query.category;
+//   let currentPage = parseInt(req.query.page) || 1; // Current page number
+//   const limit = 3; // Number of products per page
+
+//   console.log("req.query.page:", req.query.page);
+//   console.log("currentPage:", currentPage);
+//   if (req.session.user) {
+//     cartCount = await userHelpers.getCartCount(req.session.user._id);
+//   }
+
+//   const query = {};
+
+//   if (search) {
+//     query.Name = { $regex: search, $options: 'i' };
+//   }
+
+//   if (category) {
+//     query.Category = category;
+//   }
+
+//   const categories = await userHelpers.getAllCategories();
+
+//   productHelpers.getPaginatedProducts(query, currentPage, limit).then((result) => {
+//     const products = result.products.map((product) => {
+//       return {
+//         ...product,
+//         STOCK: product.Quantity > 0,
+//       };
+//     });
+
+//     const totalCount = result.totalCount;
+//     const totalPages = Math.ceil(totalCount / limit);
+
+//     // Ensure currentPage is within valid range
+//     if (currentPage > totalPages) {
+//       currentPage = totalPages;
+//     }
+
+//     res.render("user/view-products", {
+//       products,
+//       categories,
+//       cartCount,
+//       user,
+//       user: true,
+//       loggedIn: req.session.user?.loggedIn,
+//       currentPage,
+//       totalPages,
+//     });
+//   });
+// });
+
+//implimenting globel search
+router.get("/search", async function (req, res, next) {
+  const searchQuery = req.query.search;
+
+  // Redirect to the product list page with the search query as a parameter
+  res.redirect(`/products?search=${searchQuery}`);
+});
+
 router.get("/products", async function (req, res, next) {
   let user = req.session.user;
   let cartCount = null;
@@ -153,34 +219,34 @@ router.get("/products", async function (req, res, next) {
 
   const categories = await userHelpers.getAllCategories();
 
-  productHelpers.getPaginatedProducts(query, currentPage, limit).then((result) => {
-    const products = result.products.map((product) => {
-      return {
-        ...product,
-        STOCK: product.Quantity > 0,
-      };
-    });
+  const result = await productHelpers.getPaginatedProducts(query, currentPage, limit);
+  const products = result.products.map((product) => {
+    return {
+      ...product,
+      STOCK: product.Quantity > 0,
+    };
+  });
 
-    const totalCount = result.totalCount;
-    const totalPages = Math.ceil(totalCount / limit);
+  const totalCount = result.totalCount;
+  const totalPages = Math.ceil(totalCount / limit);
 
-    // Ensure currentPage is within valid range
-    if (currentPage > totalPages) {
-      currentPage = totalPages;
-    }
+  // Ensure currentPage is within valid range
+  if (currentPage > totalPages) {
+    currentPage = totalPages;
+  }
 
-    res.render("user/view-products", {
-      products,
-      categories,
-      cartCount,
-      user,
-      user: true,
-      loggedIn: req.session.user?.loggedIn,
-      currentPage,
-      totalPages,
-    });
+  res.render("user/view-products", {
+    products,
+    categories,
+    cartCount,
+    user,
+    user: true,
+    loggedIn: req.session.user?.loggedIn,
+    currentPage,
+    totalPages,
   });
 });
+
 
 // USER LOGIN 
 router.get("/login", goToHomeIfLoggedIn, (req, res) => {

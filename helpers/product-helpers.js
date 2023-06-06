@@ -58,44 +58,47 @@ getPaginatedProducts: (query, page, limit) => {
 
 
 //TESTING
-getPaginatedProducts: (query, page, limit) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const collection = db.get().collection('product'); // Replace 'collection.PRODUCT_COLLECTION' with the actual collection name
+// getPaginatedProducts: (query, page, limit) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const collection = db.get().collection('product'); // Replace 'collection.PRODUCT_COLLECTION' with the actual collection name
 
-      const totalCount = await collection.countDocuments(query);
+//       const totalCount = await collection.countDocuments(query);
 
-      const products = await collection
-        .aggregate([
-          { $match: query },
-          {
-            $project: {
-              _id: 1,
-              Name: 1,
-              Category: 1,
-              Price: 1,
-              Description: 1,
-              Listed: 1,
-              Quantity: {
-                $cond: {
-                  if: { $lte: ['$Quantity', 0] },
-                  then: 0,
-                  else: '$Quantity',
-                },
-              },
-            },
-          },
-        ])
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .toArray();
+//       const products = await collection
+//         .aggregate([
+//           { $match: query },
+//           {
+//             $project: {
+//               _id: 1,
+//               Name: 1,
+//               Category: 1,
+//               Price: 1,
+//               Description: 1,
+//               Listed: 1,
+//               Quantity: {
+//                 $cond: {
+//                   if: { $lte: ['$Quantity', 0] },
+//                   then: 0,
+//                   else: '$Quantity',
+//                 },
+//               },
+//             },
+//           },
+//         ])
+//         .skip((page - 1) * limit)
+//         .limit(limit)
+//         .toArray();
 
-      resolve({ products, totalCount });
-    } catch (error) {
-      reject(error);
-    }
-  });
-},
+//       resolve({ products, totalCount });
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// },
+//TESTING GLOBEL SEARCH:
+
+
 
 
   
@@ -280,5 +283,18 @@ unlistCategory: (categoryId) => {
         })
     })
 },
-  
+getProducts: (query) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const collection = db.get().collection('product'); // Replace 'collection.PRODUCT_COLLECTION' with the actual collection name
+
+      const products = await collection.find(query).toArray();
+
+      resolve(products);
+    } catch (error) {
+      reject(error);
+    }
+  });
+},
+
 }

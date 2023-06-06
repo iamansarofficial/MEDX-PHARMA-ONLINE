@@ -125,30 +125,41 @@
                 	<div class="row justify-content-center">
                 		<div class="col-lg-9">
                             
-                			<div class="toolbox">
-                                 <h5 class="text-danger mt-5 text-center product-not-found" id="para" style="display: none;">Product Not Found</h5>
-                				{{!-- <div class="toolbox-left">
-                					<div class="toolbox-info">
-                						Showing <span>9 of 56</span> Products
-                					</div><!-- End .toolbox-info -->
-                				</div><!-- End .toolbox-left --> --}}
+                		
+                               
+<div class="toolbox">
+    <h5 class="text-danger mt-5 text-center product-not-found" id="para" style="display: none;">Product Not Found</h5>
+    <div class="toolbox-right">
+        <div class="toolbox-sort">
+            <form id="searchForm" action="/search" method="GET">
+                <div style="display: flex; align-items: center;">
+                    <label for="searchInput" style="margin-right: 10px;">Search Medicine:</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <input name="search" id="searchInput" placeholder="Live searching...." class="form-control" style="margin-right: 10px;" required>
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div><!-- End .toolbox-right -->
+</div>
 
-                				<div class="toolbox-right">
-                                    
+<div id="searchResults"></div>
+
+
+
+{{!-- ORGINAL CODE FOR SEARCH --}}
+	{{!-- <div class="toolbox"></div>
+    <h5 class="text-danger mt-5 text-center product-not-found" id="para" style="display: none;">Product Not Found</h5>
+                				{{!-- <div class="toolbox-right">       
                 					<div class="toolbox-sort">
                 						<label for="sortby">Search Medicine:</label>
                 						<div class="">
-											<input name="sortby" id="searchInput" placeholder="Live searching...." class="form-control">
-											
-											</input>
-                                            
-										</div>
-                                       
-                					</div>
-                                    
-                               
-                				</div><!-- End .toolbox-right -->
-                			</div><!-- End .toolbox -->
+											<input name="sortby" id="searchInput" placeholder="Live searching...." class="form-control">                    
+										</div>              
+                					</div>   
+                				</div><!-- End .toolbox-right --> 
+                			</div><!-- End .toolbox -->--}}
                
 <!-- Product list section -->
 {{!-- <div class="products mb-3" id="productContainer">
@@ -211,8 +222,9 @@
   {{/each}}
 </div><!-- End .products -->
  --}}
-{{!-- TESTING --}}
+{{!-- TESTING OUT OF STOCK --}}
 <div class="products mb-3" id="productContainer">
+ 
   {{#each products}}
     <div class="product product-list product-item" data-price="{{this.Price}}" data-category="{{this.Category}}">
       <div class="row">
@@ -828,7 +840,8 @@
   });
 </script>
 
-<script>
+{{!-- ORGINAL --}}
+{{!-- <script>
   $(document).ready(function() {
     $('#searchInput').on('input', function() {
       var searchText = $(this).val().toLowerCase();
@@ -852,6 +865,27 @@
       }
     });
   });
+</script>
+ --}}
+<script>
+    $(document).ready(function() {
+        $('#searchButton').click(function(e) {
+            e.preventDefault();
+            var searchText = $('#searchInput').val();
+            
+            $.ajax({
+                url: '/search',
+                method: 'GET',
+                data: { search: searchText },
+                success: function(response) {
+                    $('#searchResults').html(response);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
 </script>
 
 <script>
