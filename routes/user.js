@@ -620,8 +620,30 @@ router.get('/download-invoice', (req, res) => {
 });
 
 
+// // GET USER ORDERS orginal
+// router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
+//   let orders = await userHelpers.getUserOrders(req.session.user._id);
+
+//   // Update the rendering logic based on the order status
+//   orders = orders.map(order => {
+//     if (order.status === 'delivered') {
+//       order.canReturn = true;
+//       order.showCancelButton = true;
+//     } else if (order.status === 'return') {
+//       order.canReturn = false;
+//       order.showCancelButton = false;
+//     } else {
+//       order.canReturn = false;
+//       order.showCancelButton = true;
+//     }
+//     return order;
+//   });
+
+//   res.render('user/orders', { user: req.session.user, orders });
+// });
+
 // GET USER ORDERS 
-router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
+router.get('/orders', goToLoginIfNotLoggedIn, async (req, res) => {
   let orders = await userHelpers.getUserOrders(req.session.user._id);
 
   // Update the rendering logic based on the order status
@@ -629,7 +651,7 @@ router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
     if (order.status === 'delivered') {
       order.canReturn = true;
       order.showCancelButton = true;
-    } else if (order.status === 'return') {
+    } else if (order.status === 'return' || order.status === 'Return-Accepted') {
       order.canReturn = false;
       order.showCancelButton = false;
     } else {
@@ -641,6 +663,8 @@ router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
 
   res.render('user/orders', { user: req.session.user, orders });
 });
+
+
 
 //VIEW ORDER PRODUCTS
 router.get('/view-order-products/:id',async(req,res)=>{
@@ -749,11 +773,11 @@ router.post('/returnOrder/:id/return', async (req, res) => {
       .collection(collection.ORDER_COLLCETION)
       .findOne({ _id: ObjectId(orderId) });
 
-    if (order.paymentMethod === 'ONLINE') {
-      const user = await userHelpers.getUser(order.userId);
-      const totalAmount = await userHelpers.getTotalAmountT(orderId);
-      await userHelpers.updateWallet(user._id, totalAmount);
-    }
+    // if (order.paymentMethod === 'ONLINE') {
+    //   const user = await userHelpers.getUser(order.userId);
+    //   const totalAmount = await userHelpers.getTotalAmountT(orderId);
+    //   await userHelpers.updateWallet(user._id, totalAmount);
+    // }
 
    
     await userHelpers.updateStatus(orderId, 'return');

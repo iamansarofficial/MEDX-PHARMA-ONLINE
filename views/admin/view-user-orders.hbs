@@ -190,8 +190,12 @@
     Update Status
   </button>
   <div class="dropdown-menu">
+    {{#if orderReturn}}
+    <a class="dropdown-item" href="/admin/changeOrderStatus/{{orderId}}/Return-Accepted">Return Accepted</a>
+{{else}}
     <a class="dropdown-item" href="/admin/changeOrderStatus/{{orderId}}/delay">Delay</a>
     <a class="dropdown-item" href="/admin/changeOrderStatus/{{orderId}}/delivered">Delivered</a>
+    {{/if}}
   </div>
 </div>
 

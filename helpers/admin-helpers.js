@@ -7,6 +7,7 @@ const collections = require("../config/collections");
 var objectId=require("mongodb").ObjectId;
 const { ObjectId } = require("mongodb");
 const { resolve, reject } = require("promise");
+const { promises } = require("nodemailer/lib/xoauth2");
 module.exports = {
   //ADMIN LOGIN
     doLogin: function(adminData) {
@@ -444,11 +445,92 @@ updateQuantity: async (productIds, purchasedQuantities) => {
     console.error('Error updating product quantities:', error);
     throw new Error('An error occurred while updating product quantities.');
   }
+},
+
+
+// Helper method to get total amount by orderId
+getTotalAmountT: (orderId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const order = await db
+        .get()
+        .collection(collection.ORDER_COLLCETION)
+        .findOne({ _id: ObjectId(orderId) });
+
+      if (order && order.products && order.products.length > 0) {
+        let total = 0;
+        for (const product of order.products) {
+          const productDetails = await db
+            .get()
+            .collection(collection.PRODUCT_COLLECTION)
+            .findOne({ _id: ObjectId(product.item) });
+
+          if (productDetails) {
+            total += product.quantity * parseFloat(productDetails.Price);
+          }
+        }
+        resolve(total);
+      } else {
+        resolve(0);
+      }
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+},
+
+// Helper function: updateWallet
+// Helper method to update wallet amount
+updateWallet: (userId, totalAmount) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db
+        .get()
+        .collection(collection.WALLET_COLLECTION)
+        .findOneAndUpdate(
+          { user: ObjectId(userId) },
+          { $inc: { amount: totalAmount } },
+          { upsert: true }
+        );
+      resolve();
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });
+},
+// Helper function: getReturnStatus
+getReturnStatus: (orderId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const order = await db.get().collection(collection.ORDER_COLLCETION).findOne({ _id: ObjectId(orderId) });
+      if (order) {
+        resolve(order.status === 'return');
+      } else {
+        reject("Order not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
-
-
-
-
+,
+// Helper function: getUserIdFromOrder
+getUserIdFromOrder: (orderId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const order = await db.get().collection(collection.ORDER_COLLCETION).findOne({ _id: ObjectId(orderId) });
+      if (order) {
+        resolve(order.userId);
+      } else {
+        reject("Order not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
   
 
 
