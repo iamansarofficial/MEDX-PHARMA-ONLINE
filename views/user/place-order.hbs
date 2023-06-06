@@ -347,6 +347,24 @@
 										            </div><!-- End .card-body -->
 										        </div><!-- End .collapse -->
 
+{{!-- <div class="card-header" id="heading-3">
+    <h2 class="card-title">
+        {{#if useWallet}}
+            <label>
+                <input type="radio" class="collapsed" value="WALLET" name="payment-method" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                Use Wallet (Balance: {{wallet.amount}})
+            </label>
+        {{else}}
+            <label>
+                <input type="radio" class="collapsed" value="WALLET" name="payment-method" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3" disabled>
+                Use Wallet
+            </label>
+            <div class="error-msg" style="color: red; font-weight: bold;">
+                Insufficient funds in your wallet.please choose a different payment method or You can choose wallet plus Online Payment.
+            </div>
+        {{/if}}
+    </h2>
+</div><!-- End .card-header --> --}}
 <div class="card-header" id="heading-3">
     <h2 class="card-title">
         {{#if useWallet}}
@@ -360,12 +378,15 @@
                 Use Wallet
             </label>
             <div class="error-msg" style="color: red; font-weight: bold;">
-                Insufficient funds in your wallet. Please add funds or choose a different payment method.
+                Insufficient funds in your wallet.please choose a different payment method or You can choose wallet plus Online Payment.
             </div>
+             <label>
+                <input type="radio" class="collapsed" value="WALLET-PLUS-ONLINE" name="payment-method" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                Use Wallet Plus Online
+            </label>
         {{/if}}
     </h2>
 </div><!-- End .card-header -->
-
 
 
                                                 

@@ -420,7 +420,82 @@ router.get('/place-order', async (req, res) => {
 
 //orginal
 
-//PLACE ORDER POST ROUTER
+// //PLACE ORDER POST ROUTER
+// router.post('/place-order', async (req, res) => {
+//   let wallet = await userHelpers.getWallet(req.session.user._id);
+//   let products = await userHelpers.getCartProductsList(req.body.userId);
+//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId);
+
+//   let user = await userHelpers.getUser(req.session.user._id);
+
+//   // Sending coupon based on user's purchasing amount
+//   let couponId = await userHelpers.getOneCoupon(totalPrice, user);
+
+//   if (couponId && !await userHelpers.checkUsed(couponId, user._id)) {
+//     // User hasn't used the coupon, so insert the coupon ID to the user collection
+//     await userHelpers.addCouponToUser(couponId, user._id);
+//   }
+
+//   let userEnterCoupon = req.body.userEnterCoupon; // Get coupon code user entered in the place order page
+//   console.log(userEnterCoupon);
+
+//   if (userEnterCoupon) {
+//     // User entered a coupon code, check if it's valid
+//     let coupon = await userHelpers.getUserCoupon(userEnterCoupon);
+
+//     if (coupon) {
+//       // Calculate the new total price after deducting the coupon offer
+//       totalPrice -= coupon.offer;
+//     }
+//   }
+
+//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
+//     if (req.body['payment-method'] === 'COD') {
+//       req.session.orderDetails = {
+//         address: req.body.address,
+//         mobile: req.body.mobile,
+//         pincode: req.body.pincode,
+//         totalAmount: totalPrice,
+//         orderStatus: 'Placed',
+//         paymentMethod: req.body['payment-method'],
+//         date: new Date().toISOString()
+//       };
+//       res.json({ codSuccess: true });
+//     } else if (req.body['payment-method'] === 'ONLINE') {
+//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
+//         req.session.orderDetails = {
+//           address: req.body.address,
+//           mobile: req.body.mobile,
+//           pincode: req.body.pincode,
+//           totalAmount: totalPrice,
+//           orderStatus: 'Placed',
+//           paymentMethod: req.body['payment-method'],
+//           date: new Date().toISOString()
+//         };
+//         res.json(response);
+//       });
+//     } else {
+//       let walletAmount = wallet.amount;
+//       let newBalanceWallet = walletAmount - totalPrice;
+
+//       userHelpers.minusWallet(req.session.user._id, newBalanceWallet).then((response) => {
+//         req.session.orderDetails = {
+//           address: req.body.address,
+//           mobile: req.body.mobile,
+//           pincode: req.body.pincode,
+//           totalAmount: totalPrice,
+//           orderStatus: 'Placed',
+//           paymentMethod: 'ONLINE', // Set the payment method as "ONLINE" instead of "WALLET"
+//           date: new Date().toISOString()
+//         };
+//         res.json({ codSuccess: true }); // Return the response as "codSuccess" for consistency with other payment methods
+//       });
+//     }
+//   });
+// });
+
+//testing wallet plus online working
+// Router code for wallet plus online payment
 router.post('/place-order', async (req, res) => {
   let wallet = await userHelpers.getWallet(req.session.user._id);
   let products = await userHelpers.getCartProductsList(req.body.userId);
@@ -474,9 +549,27 @@ router.post('/place-order', async (req, res) => {
         };
         res.json(response);
       });
-    } else {
+    } else if (req.body['payment-method'] === 'WALLET-PLUS-ONLINE') {
       let walletAmount = wallet.amount;
-      let newBalanceWallet = walletAmount - totalPrice;
+      let remainingAmount = totalPrice - walletAmount;
+
+      userHelpers.minusWallet(req.session.user._id, walletAmount).then(() => {
+        userHelpers.generateRazorpay(orderId, remainingAmount).then((response) => {
+          req.session.orderDetails = {
+            address: req.body.address,
+            mobile: req.body.mobile,
+            pincode: req.body.pincode,
+            totalAmount: totalPrice,
+            orderStatus: 'Placed',
+            paymentMethod: 'ONLINE',
+            date: new Date().toISOString()
+          };
+          res.json(response);
+        });
+      });
+    } else {
+      // Wallet payment
+      let newBalanceWallet = wallet.amount - totalPrice;
 
       userHelpers.minusWallet(req.session.user._id, newBalanceWallet).then((response) => {
         req.session.orderDetails = {
@@ -485,15 +578,14 @@ router.post('/place-order', async (req, res) => {
           pincode: req.body.pincode,
           totalAmount: totalPrice,
           orderStatus: 'Placed',
-          paymentMethod: 'ONLINE', // Set the payment method as "ONLINE" instead of "WALLET"
+          paymentMethod: 'ONLINE',
           date: new Date().toISOString()
         };
-        res.json({ codSuccess: true }); // Return the response as "codSuccess" for consistency with other payment methods
+        res.json({ codSuccess: true });
       });
     }
   });
 });
-
 
 
 //ORDER SUCCES GET ROUTER
