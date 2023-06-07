@@ -492,7 +492,7 @@ router.post('/addBanner',(req,res)=>{
   })
 })
 
-//CHANGE ORDER STATUS BY ADMIN
+//CHANGE ORDER STATUS BY ADMIN orginal
 // router.get('/changeOrderStatus/:id/:status', async (req, res) => {
 //   try {
 //     const orderId = req.params.id;
@@ -504,24 +504,61 @@ router.post('/addBanner',(req,res)=>{
 //     res.send("An error occurred while updating the order status. Please try again.");
 //   }
 // });
+//code for return accepted
+// router.get('/changeOrderStatus/:id/:status', async (req, res) => {
+//   try {
+//     const orderId = req.params.id;
+//     const status = req.params.status;
+//     if (status === 'Return-Accepted') {
+//       // Retrieve the user ID associated with the order
+//       const userId = await adminHelpers.getUserIdFromOrder(orderId);
+      
+//       // Calculate the total amount of products in the order
+//       const totalAmount = await adminHelpers.getTotalAmountT(orderId);
+      
+//       // Update the user's wallet
+//       await adminHelpers.updateWallet(userId, totalAmount);
+//     }
+    
+//     // Update the order status
+//     await adminHelpers.updateStatus(orderId, status);
+    
+//     res.redirect(`/admin/viewUserOrderProducts/${orderId}`);
+//   } catch (error) {
+//     console.error('Error updating order status:', error);
+//     res.send("An error occurred while updating the order status. Please try again.");
+//   }
+// });
+//impliment when admin click return accepted we must back the user purchase quantity to db
 router.get('/changeOrderStatus/:id/:status', async (req, res) => {
   try {
     const orderId = req.params.id;
     const status = req.params.status;
+
     if (status === 'Return-Accepted') {
       // Retrieve the user ID associated with the order
       const userId = await adminHelpers.getUserIdFromOrder(orderId);
-      
-      // Calculate the total amount of products in the order
-      const totalAmount = await adminHelpers.getTotalAmountT(orderId);
+
+      // Retrieve the order details
+      const order = await adminHelpers.getOrderDetails(orderId);
+
+     // Retrieve the product IDs and purchased quantities from the order
+const productIds = order.products.map(product => product.item?.toString()); // Use optional chaining and convert to string
+const purchasedQuantities = order.products.map(product => product.quantity);
+console.log(productIds);
+console.log(purchasedQuantities);
+
+      // Update the product quantities by adding the purchased quantities back
+      await adminHelpers.returnProductsQuantityBackToDb(productIds, purchasedQuantities);
       
       // Update the user's wallet
+      const totalAmount = order.totalAmount;
       await adminHelpers.updateWallet(userId, totalAmount);
     }
-    
+
     // Update the order status
     await adminHelpers.updateStatus(orderId, status);
-    
+
     res.redirect(`/admin/viewUserOrderProducts/${orderId}`);
   } catch (error) {
     console.error('Error updating order status:', error);
