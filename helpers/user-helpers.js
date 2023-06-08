@@ -909,26 +909,76 @@ minusWallet: (userId, totalAmount) => {
   });
 },
 
-
+// orginal
+// getUserCoupons: async (userId) => {
+//   try {
+//     const user = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) });
+//     const coupons = [];
+//     if (user && user.coupons && user.coupons.length > 0) {
+//       for (const couponId of user.coupons) {
+//         const coupon = await db.get().collection(collection.COUPON_COLLECTION).findOne({ _id: ObjectId(couponId) });
+//         if (coupon) {
+//           coupons.push(coupon);
+//         }
+//       }
+//     }
+//     return coupons;
+//   } catch (error) {
+//     throw error;
+//   }
+// },
+// getUserCoupons helper method
 getUserCoupons: async (userId) => {
   try {
-    const user = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) });
+    const user = await db
+      .get()
+      .collection(collection.USER_COLLECTION)
+      .findOne({ _id: ObjectId(userId) });
+
     const coupons = [];
     if (user && user.coupons && user.coupons.length > 0) {
-      for (const couponId of user.coupons) {
-        const coupon = await db.get().collection(collection.COUPON_COLLECTION).findOne({ _id: ObjectId(couponId) });
-        if (coupon) {
-          coupons.push(coupon);
-        }
-      }
+      const couponIds = user.coupons.map((coupon) => coupon._id); // Use coupon._id instead of coupon.toString()
+      return await db
+        .get()
+        .collection(collection.COUPON_COLLECTION)
+        .find({ _id: { $in: couponIds } })
+        .toArray();
+    } else {
+      return [];
     }
-    return coupons;
   } catch (error) {
     throw error;
   }
-},
+}
 
+,
+//set only display not expired coupons
+getUserCoupons: async (userId) => {
+  try {
+    const user = await db
+      .get()
+      .collection(collection.USER_COLLECTION)
+      .findOne({ _id: ObjectId(userId) });
 
+    const coupons = [];
+    if (user && user.coupons && user.coupons.length > 0) {
+      const couponIds = user.coupons
+        .filter((coupon) => !coupon.used) // Filter out used coupons
+        .map((coupon) => coupon._id);
+
+      return await db
+        .get()
+        .collection(collection.COUPON_COLLECTION)
+        .find({ _id: { $in: couponIds } })
+        .toArray();
+    } else {
+      return [];
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+,
 
 // Get a coupon based on total price
 getOneCoupon: (totalPrice, user) => {
@@ -955,33 +1005,64 @@ getOneCoupon: (totalPrice, user) => {
 ,
 
 
-// Check if the coupon has already been used by the user ORGINAL
+// // Check if the coupon has already been used by the user ORGINAL
+// checkUsed: (couponId, userId) => {
+//   return new Promise((resolve, reject) => {
+//     db.get().collection(collection.USER_COLLECTION).findOne({
+//       _id: userId,
+//       coupons: couponId
+//     }, (err, user) => {
+//       if (err) {
+//         reject(err);
+//       } else {
+//         resolve(user !== null);
+//       }
+//     });
+//   });
+// },
+
+
 checkUsed: (couponId, userId) => {
   return new Promise((resolve, reject) => {
-    db.get().collection(collection.USER_COLLECTION).findOne({
-      _id: userId,
-      coupons: couponId
-    }, (err, user) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(user !== null);
+    db.get().collection(collection.USER_COLLECTION).findOne(
+      { _id: userId, "coupons._id": couponId },
+      (err, user) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(user !== null);
+        }
       }
-    });
+    );
   });
 },
 
 
 
 
+// // Add the coupon ID to the user collection ORGINAL
+// addCouponToUser: (couponId, userId) => {
+//   return new Promise((resolve, reject) => {
+//     db.get().collection(collection.USER_COLLECTION).updateOne(
+//       { _id: userId },
+//       { $addToSet: { coupons: couponId } },
+//       (err) => {
+//         if (err) {
+//           reject(err);
+//         } else {
+//           resolve();
+//         }
+//       }
+//     );
+//   });
+// },
 
-
-// Add the coupon ID to the user collection
+//IMPLIMENTING SET USER COUPON USER FALSE
 addCouponToUser: (couponId, userId) => {
   return new Promise((resolve, reject) => {
     db.get().collection(collection.USER_COLLECTION).updateOne(
       { _id: userId },
-      { $addToSet: { coupons: couponId } },
+      { $addToSet: { coupons: { _id: couponId, used: false } } },
       (err) => {
         if (err) {
           reject(err);
@@ -992,6 +1073,8 @@ addCouponToUser: (couponId, userId) => {
     );
   });
 },
+
+
 getUserCoupon: (couponCode) => {
   return new Promise((resolve, reject) => {
     db.get()
@@ -1049,5 +1132,38 @@ updateOrderAddress: (orderAddressId, updatedAddress) => {
   })
 },
 
+// Helper method to mark the coupon as used
+markCouponAsUsed: (couponId, userId) => {
+  return new Promise((resolve, reject) => {
+    db.get().collection(collection.USER_COLLECTION).updateOne(
+      { _id: userId, "coupons._id": couponId },
+      { $set: { "coupons.$.used": true } },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+},
+isCouponUsed: async (couponId, userId) => {
+  try {
+    const user = await db
+      .get()
+      .collection(collection.USER_COLLECTION)
+      .findOne({ _id: ObjectId(userId), "coupons._id": ObjectId(couponId) });
+
+    if (user) {
+      const coupon = user.coupons.find((c) => c._id.toString() === couponId.toString());
+      return coupon.used;
+    }
+
+    return false;
+  } catch (error) {
+    throw error;
+  }
+},
 
 };

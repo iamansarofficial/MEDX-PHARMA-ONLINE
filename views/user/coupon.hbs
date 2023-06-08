@@ -9,6 +9,42 @@
           <th>Offer Price</th>
           <th>Minimum Purchase</th>
           <th>Coupon Code</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each coupons}}
+        <tr>
+          <td style="font-size: 1rem;">{{this._id}}</td>
+          <td style="font-size: 1rem;">{{this.name}}</td>
+          <td style="font-size: 1rem;">{{this.offer}}</td>
+          <td style="font-size: 1rem;">{{this.minPurchase}}</td>
+          <td style="font-size: 1rem;">{{this.code}}</td>
+          <td>
+            <a href="/products" class="btn btn-primary cartButton">Purchase Medicine</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+
+
+
+{{!-- <section>
+  <div class="container fadeInDown third">
+    <h2 class="text-center" style="margin-top: 6rem; font-size: xxx-large;">YOUR COUPONS</h2>
+    <table class="table mt-5" id="order-listing">
+      <thead class="tableHead">
+        <tr>
+          <th scope="col">Date</th>
+          <th>Coupon Name</th>
+          <th>Offer Price</th>
+          <th>Minimum Purchase</th>
+          <th>Coupon Code</th>
         </tr>
       </thead>
       <tbody>
@@ -27,4 +63,4 @@
       </tbody>
     </table>
   </div>
-</section>
+</section> --}}
