@@ -395,7 +395,7 @@ getCategoryByName: (categoryName) => {
       });
   });
 },
-
+//ORGINAL
 addCoupon: (couponDetails) => {
   return new Promise((resolve, reject) => {
     couponDetails.offer = parseInt(couponDetails.offer);
@@ -413,6 +413,28 @@ addCoupon: (couponDetails) => {
   });
 }
 ,
+//IMPLIMENTING COUPON CODE UNIQUE 
+// Helper method to check if coupon code is unique
+isCouponCodeUnique: (code) => {
+  return new Promise((resolve, reject) => {
+    db.get()
+      .collection(collection.COUPON_COLLECTION)
+      .findOne({ code: code })
+      .then((coupon) => {
+        if (coupon) {
+          // Coupon code already exists
+          resolve(false);
+        } else {
+          // Coupon code is unique
+          resolve(true);
+        }
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+},
+
 // Helper method to get all coupons
 getAllCoupons: () => {
   return new Promise((resolve, reject) => {

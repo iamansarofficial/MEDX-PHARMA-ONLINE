@@ -296,5 +296,12 @@ getProducts: (query) => {
     }
   });
 },
-
+//  //DELETE BANNER
+//  deleteCoupon:(couponId)=>{
+//   return new Promise((resolve,reject)=>{
+//       db.get().collection(collection.COUPON_COLLECTION).deleteOne({_id:objectId(couponId)}).then((response)=>{
+//           resolve(response)
+//       })
+//   })
+// },
 }

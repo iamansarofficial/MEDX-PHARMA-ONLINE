@@ -577,17 +577,37 @@ router.get('/add-coupon',(req,res)=>{
   res.render('admin/add-coupon')
 })
 
-//ADD COUPONS POST ROUTER
+// //ADD COUPONS POST ROUTER ORGINAL
+// router.post('/add-coupon', async (req, res) => {
+//   const couponDetails = req.body;
+//   try {
+//     await adminHelpers.addCoupon(couponDetails);
+//     res.redirect('/admin/coupon'); // Redirect to the coupon listing page after successful addition
+//   } catch (error) {
+//     console.log(error);
+//     res.render('admin/add-coupon', { error: 'Failed to add coupon' });
+//   }
+// });
+
+//IMPLIMENT UNIQUE FOR COUPON CODE
+// ADD COUPONS POST ROUTER
 router.post('/add-coupon', async (req, res) => {
   const couponDetails = req.body;
   try {
-    await adminHelpers.addCoupon(couponDetails);
-    res.redirect('/admin/coupon'); // Redirect to the coupon listing page after successful addition
+    const isCodeUnique = await adminHelpers.isCouponCodeUnique(couponDetails.code);
+    if (isCodeUnique) {
+      await adminHelpers.addCoupon(couponDetails);
+      res.redirect('/admin/coupon'); // Redirect to the coupon listing page after successful addition
+    } else {
+      res.render('admin/add-coupon', { error: 'Coupon code is already used' });
+    }
   } catch (error) {
     console.log(error);
     res.render('admin/add-coupon', { error: 'Failed to add coupon' });
   }
 });
+ 
+
 
 //DELETE BANNER
 router.get('/delete-banner/:id',(req,res)=>{
@@ -596,5 +616,13 @@ router.get('/delete-banner/:id',(req,res)=>{
     res.redirect('/admin/banner')
   })
 })
+
+// //DELETE COUPON
+// router.get('/delete-coupon/:id',(req,res)=>{
+//   let couponId=req.params.id
+//   productHelpers.deleteCoupon(bannerId).then((response)=>{
+//     res.redirect('/admin/coupon')
+//   })
+// })
 
 module.exports = router;

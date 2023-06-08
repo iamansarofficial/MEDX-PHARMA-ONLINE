@@ -12,7 +12,7 @@
           <th scope="col">Offer Rs</th>
           <th scope="col">Minimum Purchase</th>
           <th scope="col">Coupon Code</th>
-          <th scope="col">Options</th>
+          {{!-- <th scope="col">Options</th> --}}
         </tr>
       </thead>
       <tbody>
@@ -23,10 +23,10 @@
           <td>{{offer}}</td>
           <td>{{minPurchase}}</td>
           <td>{{code}}</td>
-          <td>
-            <a href="/admin/{{_id}}" class="btn btn-primary">Edit</a>
-            <a href="/admin/{{_id}}" class="btn btn-danger" onclick="return confirm('Are you want to delete product {{name}}?')">Delete</a>
-          </td>
+          {{!-- <td>
+           
+            <a href="/admin/delete-coupon{{this._id}}" class="btn btn-danger" onclick="return confirm('Are you want to delete product {{name}}?')">Delete</a>
+          </td> --}}
         </tr>
         {{/each}}
       </tbody>
