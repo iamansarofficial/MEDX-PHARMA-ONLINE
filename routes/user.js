@@ -75,114 +75,6 @@ router.get("/", async function (req, res, next) {
   res.render("user/user-home", { banner, user, loggedIn: req.session.user?.loggedIn });
 });
 
-// //PRODUCT LIST PAGE ORGINAL
-// router.get("/products", async function (req, res, next) {
-//   let user = req.session.user;
-//   let cartCount = null;
-
-//   const search = req.query.search;
-//   const category = req.query.category;
-//   let currentPage = parseInt(req.query.page) || 1; // Current page number
-//   const limit = 3; // Number of products per page
-
-//   console.log("req.query.page:", req.query.page);
-//   console.log("currentPage:", currentPage);
-//   if (req.session.user) {
-//     cartCount = await userHelpers.getCartCount(req.session.user._id);
-//   }
-
-//   const query = {};
-
-//   if (search) {
-//     query.Name = { $regex: search, $options: 'i' };
-//   }
-
-//   if (category) {
-//     query.Category = category;
-//   }
-
-//   const categories = await userHelpers.getAllCategories();
-
-//   productHelpers.getPaginatedProducts(query, currentPage, limit).then((result) => {
-//     const products = result.products;
-//     const totalCount = result.totalCount;
-//     const totalPages = Math.ceil(totalCount / limit);
-
-//     // Ensure currentPage is within valid range
-//     if (currentPage > totalPages) {
-//       currentPage = totalPages;
-//     }
-
-//     res.render("user/view-products", {
-//       products,
-//       categories,
-//       cartCount,
-//       user,
-//       user: true,
-//       loggedIn: req.session.user?.loggedIn,
-//       currentPage,
-//       totalPages,
-//     });
-//   });
-// });
-
-
-//implimenting out of stock
-// router.get("/products", async function (req, res, next) {
-//   let user = req.session.user;
-//   let cartCount = null;
-
-//   const search = req.query.search;
-//   const category = req.query.category;
-//   let currentPage = parseInt(req.query.page) || 1; // Current page number
-//   const limit = 3; // Number of products per page
-
-//   console.log("req.query.page:", req.query.page);
-//   console.log("currentPage:", currentPage);
-//   if (req.session.user) {
-//     cartCount = await userHelpers.getCartCount(req.session.user._id);
-//   }
-
-//   const query = {};
-
-//   if (search) {
-//     query.Name = { $regex: search, $options: 'i' };
-//   }
-
-//   if (category) {
-//     query.Category = category;
-//   }
-
-//   const categories = await userHelpers.getAllCategories();
-
-//   productHelpers.getPaginatedProducts(query, currentPage, limit).then((result) => {
-//     const products = result.products.map((product) => {
-//       return {
-//         ...product,
-//         STOCK: product.Quantity > 0,
-//       };
-//     });
-
-//     const totalCount = result.totalCount;
-//     const totalPages = Math.ceil(totalCount / limit);
-
-//     // Ensure currentPage is within valid range
-//     if (currentPage > totalPages) {
-//       currentPage = totalPages;
-//     }
-
-//     res.render("user/view-products", {
-//       products,
-//       categories,
-//       cartCount,
-//       user,
-//       user: true,
-//       loggedIn: req.session.user?.loggedIn,
-//       currentPage,
-//       totalPages,
-//     });
-//   });
-// });
 
 //implimenting globel search
 router.get("/search", async function (req, res, next) {
@@ -418,174 +310,6 @@ router.get('/place-order', async (req, res) => {
   }
 });
 
-//orginal
-
-// //PLACE ORDER POST ROUTER
-// router.post('/place-order', async (req, res) => {
-//   let wallet = await userHelpers.getWallet(req.session.user._id);
-//   let products = await userHelpers.getCartProductsList(req.body.userId);
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId);
-
-//   let user = await userHelpers.getUser(req.session.user._id);
-
-//   // Sending coupon based on user's purchasing amount
-//   let couponId = await userHelpers.getOneCoupon(totalPrice, user);
-
-//   if (couponId && !await userHelpers.checkUsed(couponId, user._id)) {
-//     // User hasn't used the coupon, so insert the coupon ID to the user collection
-//     await userHelpers.addCouponToUser(couponId, user._id);
-//   }
-
-//   let userEnterCoupon = req.body.userEnterCoupon; // Get coupon code user entered in the place order page
-//   console.log(userEnterCoupon);
-
-//   if (userEnterCoupon) {
-//     // User entered a coupon code, check if it's valid
-//     let coupon = await userHelpers.getUserCoupon(userEnterCoupon);
-
-//     if (coupon) {
-//       // Calculate the new total price after deducting the coupon offer
-//       totalPrice -= coupon.offer;
-//     }
-//   }
-
-//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
-//     if (req.body['payment-method'] === 'COD') {
-//       req.session.orderDetails = {
-//         address: req.body.address,
-//         mobile: req.body.mobile,
-//         pincode: req.body.pincode,
-//         totalAmount: totalPrice,
-//         orderStatus: 'Placed',
-//         paymentMethod: req.body['payment-method'],
-//         date: new Date().toISOString()
-//       };
-//       res.json({ codSuccess: true });
-//     } else if (req.body['payment-method'] === 'ONLINE') {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: req.body['payment-method'],
-//           date: new Date().toISOString()
-//         };
-//         res.json(response);
-//       });
-//     } else {
-//       let walletAmount = wallet.amount;
-//       let newBalanceWallet = walletAmount - totalPrice;
-
-//       userHelpers.minusWallet(req.session.user._id, newBalanceWallet).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: 'ONLINE', // Set the payment method as "ONLINE" instead of "WALLET"
-//           date: new Date().toISOString()
-//         };
-//         res.json({ codSuccess: true }); // Return the response as "codSuccess" for consistency with other payment methods
-//       });
-//     }
-//   });
-// });
-
-//testing wallet plus online working
-// Router code for wallet plus online payment
-// router.post('/place-order', async (req, res) => {
-//   let wallet = await userHelpers.getWallet(req.session.user._id);
-//   let products = await userHelpers.getCartProductsList(req.body.userId);
-//   let totalPrice = await userHelpers.getTotalAmount(req.body.userId);
-
-//   let user = await userHelpers.getUser(req.session.user._id);
-
-//   // Sending coupon based on user's purchasing amount
-//   let couponId = await userHelpers.getOneCoupon(totalPrice, user);
-
-//   if (couponId && !await userHelpers.checkUsed(couponId, user._id)) {
-//     // User hasn't used the coupon, so insert the coupon ID to the user collection
-//     await userHelpers.addCouponToUser(couponId, user._id);
-//   }
-
-//   let userEnterCoupon = req.body.userEnterCoupon; // Get coupon code user entered in the place order page
-//   console.log(userEnterCoupon);
-
-//   if (userEnterCoupon) {
-//     // User entered a coupon code, check if it's valid
-//     let coupon = await userHelpers.getUserCoupon(userEnterCoupon);
-
-//     if (coupon) {
-//       // Calculate the new total price after deducting the coupon offer
-//       totalPrice -= coupon.offer;
-//     }
-//   }
-
-//   userHelpers.placeOrder(req.body, products, totalPrice).then((orderId) => {
-//     if (req.body['payment-method'] === 'COD') {
-//       req.session.orderDetails = {
-//         address: req.body.address,
-//         mobile: req.body.mobile,
-//         pincode: req.body.pincode,
-//         totalAmount: totalPrice,
-//         orderStatus: 'Placed',
-//         paymentMethod: req.body['payment-method'],
-//         date: new Date().toISOString()
-//       };
-//       res.json({ codSuccess: true });
-//     } else if (req.body['payment-method'] === 'ONLINE') {
-//       userHelpers.generateRazorpay(orderId, totalPrice).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: req.body['payment-method'],
-//           date: new Date().toISOString()
-//         };
-//         res.json(response);
-//       });
-//     } else if (req.body['payment-method'] === 'WALLET-PLUS-ONLINE') {
-//       let walletAmount = wallet.amount;
-//       let remainingAmount = totalPrice - walletAmount;
-
-//       userHelpers.minusWallet(req.session.user._id, walletAmount).then(() => {
-//         userHelpers.generateRazorpay(orderId, remainingAmount).then((response) => {
-//           req.session.orderDetails = {
-//             address: req.body.address,
-//             mobile: req.body.mobile,
-//             pincode: req.body.pincode,
-//             totalAmount: totalPrice,
-//             orderStatus: 'Placed',
-//             paymentMethod: 'ONLINE',
-//             date: new Date().toISOString()
-//           };
-//           res.json(response);
-//         });
-//       });
-//     } else {
-//       // Wallet payment
-//       let newBalanceWallet = wallet.amount - totalPrice;
-
-//       userHelpers.minusWallet(req.session.user._id, newBalanceWallet).then((response) => {
-//         req.session.orderDetails = {
-//           address: req.body.address,
-//           mobile: req.body.mobile,
-//           pincode: req.body.pincode,
-//           totalAmount: totalPrice,
-//           orderStatus: 'Placed',
-//           paymentMethod: 'ONLINE',
-//           date: new Date().toISOString()
-//         };
-//         res.json({ codSuccess: true });
-//       });
-//     }
-//   });
-// });
 // implimenting coupon limit usage
 router.post('/place-order', async (req, res) => {
   let wallet = await userHelpers.getWallet(req.session.user._id);
@@ -604,19 +328,7 @@ router.post('/place-order', async (req, res) => {
 
   let userEnterCoupon = req.body.userEnterCoupon; // Get coupon code user entered in the place order page
   console.log(userEnterCoupon);
-//orginal
-  // if (userEnterCoupon) {
-  //   // User entered a coupon code, check if it's valid
-  //   let coupon = await userHelpers.getUserCoupon(userEnterCoupon);
-  
-  //   if (coupon) {
-  //     // Calculate the new total price after deducting the coupon offer
-  //     totalPrice -= coupon.offer;
-  
-  //     // Mark the coupon as used
-  //     await userHelpers.markCouponAsUsed(coupon._id, user._id);
-  //   }
-  // }
+
   
   if (userEnterCoupon) {
     // User entered a coupon code, check if it's valid
@@ -728,27 +440,6 @@ router.get('/download-invoice', (req, res) => {
 });
 
 
-// // GET USER ORDERS orginal
-// router.get('/orders',goToLoginIfNotLoggedIn,  async (req, res) => {
-//   let orders = await userHelpers.getUserOrders(req.session.user._id);
-
-//   // Update the rendering logic based on the order status
-//   orders = orders.map(order => {
-//     if (order.status === 'delivered') {
-//       order.canReturn = true;
-//       order.showCancelButton = true;
-//     } else if (order.status === 'return') {
-//       order.canReturn = false;
-//       order.showCancelButton = false;
-//     } else {
-//       order.canReturn = false;
-//       order.showCancelButton = true;
-//     }
-//     return order;
-//   });
-
-//   res.render('user/orders', { user: req.session.user, orders });
-// });
 
 // GET USER ORDERS 
 router.get('/orders', goToLoginIfNotLoggedIn, async (req, res) => {
@@ -880,13 +571,6 @@ router.post('/returnOrder/:id/return', async (req, res) => {
       .get()
       .collection(collection.ORDER_COLLCETION)
       .findOne({ _id: ObjectId(orderId) });
-
-    // if (order.paymentMethod === 'ONLINE') {
-    //   const user = await userHelpers.getUser(order.userId);
-    //   const totalAmount = await userHelpers.getTotalAmountT(orderId);
-    //   await userHelpers.updateWallet(user._id, totalAmount);
-    // }
-
    
     await userHelpers.updateStatus(orderId, 'return');
     // Add code to handle the return reason, such as saving it to the database
@@ -924,12 +608,6 @@ router.get('/wallet',goToLoginIfNotLoggedIn,  async (req, res) => {
   res.render('user/wallet', { wallet }); // Pass the wallet data to the template
 });
 
-// //COUPON GET ROUTER old
-// router.get('/coupon',goToLoginIfNotLoggedIn, async (req, res) => {
-//   const userId = req.session.user._id;
-//   const coupons = await userHelpers.getUserCoupons(userId);
-//   res.render('user/coupon', { coupons });
-// });
 
 // COUPON GET ROUTER working new
 router.get('/coupon', goToLoginIfNotLoggedIn, async (req, res) => {

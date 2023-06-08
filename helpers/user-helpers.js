@@ -55,10 +55,10 @@ async function sendVerificationEmail(emailId, token) {
   await createTestAccount();
   let info = await transporter.sendMail({
     from: "anzarimuhammedanzarimuhammed@gmail.com", // sender address
-     to:"masurpytospksl@bugfoo.com",
+    //  to:"masurpytospksl@bugfoo.com",
     // to: "ofpcuxrrkmmzjvw@bugfoo.com", // list of receivers
 
-    // to: emailId,
+    to: emailId,
 
     subject: "Verification Email", // Subject line
     text: "Verification token: " + token + "Email: " + emailId, // plain text body
@@ -111,28 +111,6 @@ doSignup: (userData) => {
     }
   });
 },
-
-//ALREADY RESENTING WORKING CODE HIDE FOR UPDATING
-// resendOtp: (email) => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const verificationToken = await getRandomVerificationToken();
-
-//       // Update the user document with the new verification token
-//       await db.get().collection(collection.USER_COLLECTION).updateOne(
-//         { email: email },
-//         { $set: { verificationToken: verificationToken } }
-//       );
-
-//       // Send the verification email with the new token
-//       await sendVerificationEmail(email, verificationToken);
-
-//       resolve();
-//     } catch (error) {
-//       reject(error);
-//     }
-//   });
-// },
 
 resendOtp: (email) => {
   return new Promise(async (resolve, reject) => {
@@ -238,36 +216,7 @@ resendOtp: (email) => {
     })
 },
 
-// //CHANGE PRODUCT QAUNTITY HELPER METHOD
-// changeProductQuantity:(details)=>{
-//   details.count=parseInt(details.count)
-//   details.quantity=parseInt(details.quantity)
-//   console.log("hello");
-//   console.log(details);
-//   console.log("hai");
-//   return new Promise((resolve,reject)=>{
-//       if(details.count==-1 && details.quantity==1){
-//           db.get().collection(collection.CART_COLLECTION).updateOne({_id:ObjectId(details.cart)},
-//           {
-//               $pull:{products:{item:ObjectId(details.product)}}
-//           }
-//           ).then((response)=>{
-//               resolve({removeProduct:true})
-//           })
-          
-//       }else{
-//           db.get().collection(collection.CART_COLLECTION).updateOne({_id:ObjectId(details.cart),'products.item':ObjectId(details.product)},
-//               {
-//                   $inc:{'products.$.quantity':details.count}
-//               }
-//               ).then((response)=>{
-//                   resolve({status:true})
-//               })
-      
-//       }
-      
-//   })
-// },
+
 changeProductQuantity: (details) => {
   details.count = parseInt(details.count);
   details.quantity = parseInt(details.quantity);
@@ -441,31 +390,6 @@ getCartProductsList:(userId)=>{
     })
 },
 
-// //PLACING ORDER HELPER METHOD ORGINAL
-// placeOrder:(order,products,total)=>{
-//   return new Promise((resolve,response)=>{
-//     console.log(products);
-//       let status=order['payment-method']==='COD'?'placed':'pending'
-//       let orderObj={
-//           deliveryDetails:{
-//               mobile:order.mobile,
-//               address:order.address,
-//               pincode:order.pincode
-//           },
-//           userId:ObjectId(order.userId),
-//           paymentMethod:order['payment-method'],
-//           products:products,
-//           totalAmount:total,
-//           status:status,
-//           date:new Date()
-//       }
-
-//       db.get().collection(collection.ORDER_COLLCETION).insertOne(orderObj).then((response)=>{
-//           db.get().collection(collection.CART_COLLECTION).deleteOne({user:ObjectId(order.userId)})
-//           resolve(response.insertedId)
-//       })
-//   })
-// },
 
 placeOrder: (order, products, total) => {
   return new Promise((resolve, reject) => {
@@ -909,24 +833,7 @@ minusWallet: (userId, totalAmount) => {
   });
 },
 
-// orginal
-// getUserCoupons: async (userId) => {
-//   try {
-//     const user = await db.get().collection(collection.USER_COLLECTION).findOne({ _id: ObjectId(userId) });
-//     const coupons = [];
-//     if (user && user.coupons && user.coupons.length > 0) {
-//       for (const couponId of user.coupons) {
-//         const coupon = await db.get().collection(collection.COUPON_COLLECTION).findOne({ _id: ObjectId(couponId) });
-//         if (coupon) {
-//           coupons.push(coupon);
-//         }
-//       }
-//     }
-//     return coupons;
-//   } catch (error) {
-//     throw error;
-//   }
-// },
+
 // getUserCoupons helper method
 getUserCoupons: async (userId) => {
   try {
@@ -1005,23 +912,6 @@ getOneCoupon: (totalPrice, user) => {
 ,
 
 
-// // Check if the coupon has already been used by the user ORGINAL
-// checkUsed: (couponId, userId) => {
-//   return new Promise((resolve, reject) => {
-//     db.get().collection(collection.USER_COLLECTION).findOne({
-//       _id: userId,
-//       coupons: couponId
-//     }, (err, user) => {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(user !== null);
-//       }
-//     });
-//   });
-// },
-
-
 checkUsed: (couponId, userId) => {
   return new Promise((resolve, reject) => {
     db.get().collection(collection.USER_COLLECTION).findOne(
@@ -1040,22 +930,6 @@ checkUsed: (couponId, userId) => {
 
 
 
-// // Add the coupon ID to the user collection ORGINAL
-// addCouponToUser: (couponId, userId) => {
-//   return new Promise((resolve, reject) => {
-//     db.get().collection(collection.USER_COLLECTION).updateOne(
-//       { _id: userId },
-//       { $addToSet: { coupons: couponId } },
-//       (err) => {
-//         if (err) {
-//           reject(err);
-//         } else {
-//           resolve();
-//         }
-//       }
-//     );
-//   });
-// },
 
 //IMPLIMENTING SET USER COUPON USER FALSE
 addCouponToUser: (couponId, userId) => {

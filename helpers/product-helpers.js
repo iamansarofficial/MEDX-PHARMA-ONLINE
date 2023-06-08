@@ -55,52 +55,6 @@ getPaginatedProducts: (query, page, limit) => {
     }
   });
 },
-
-
-//TESTING
-// getPaginatedProducts: (query, page, limit) => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const collection = db.get().collection('product'); // Replace 'collection.PRODUCT_COLLECTION' with the actual collection name
-
-//       const totalCount = await collection.countDocuments(query);
-
-//       const products = await collection
-//         .aggregate([
-//           { $match: query },
-//           {
-//             $project: {
-//               _id: 1,
-//               Name: 1,
-//               Category: 1,
-//               Price: 1,
-//               Description: 1,
-//               Listed: 1,
-//               Quantity: {
-//                 $cond: {
-//                   if: { $lte: ['$Quantity', 0] },
-//                   then: 0,
-//                   else: '$Quantity',
-//                 },
-//               },
-//             },
-//           },
-//         ])
-//         .skip((page - 1) * limit)
-//         .limit(limit)
-//         .toArray();
-
-//       resolve({ products, totalCount });
-//     } catch (error) {
-//       reject(error);
-//     }
-//   });
-// },
-//TESTING GLOBEL SEARCH:
-
-
-
-
   
   //DELETE PRODUCT
     deleteProduct:(proId)=>{
@@ -119,23 +73,6 @@ getPaginatedProducts: (query, page, limit) => {
             })
         })
     },
-
-    // //UPDATE PRODUCTS
-    // updateProduct:function(proId,proDetails){
-    //     return new Promise((function(resolve,reject){
-    //         db.get().collection(collection.PRODUCT_COLLECTION).updateOne({_id:objectId(proId)},{
-    //           $set: {
-    //             Name: proDetails.Name,
-    //             Description: proDetails.Description,
-    //             Category: proDetails.Category,
-    //             Price: proDetails.Price,
-    //             Quantity: proDetails.Quantity
-    //         }
-    //         }).then((response)=>{
-    //             resolve()
-    //         })
-    //     }))
-    // },
 
     updateProduct: function(proId, proDetails) {
       return new Promise((resolve, reject) => {
@@ -296,12 +233,5 @@ getProducts: (query) => {
     }
   });
 },
-//  //DELETE BANNER
-//  deleteCoupon:(couponId)=>{
-//   return new Promise((resolve,reject)=>{
-//       db.get().collection(collection.COUPON_COLLECTION).deleteOne({_id:objectId(couponId)}).then((response)=>{
-//           resolve(response)
-//       })
-//   })
-// },
+
 }

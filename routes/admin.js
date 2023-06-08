@@ -276,17 +276,6 @@ router.get('/allOrders',verifyALogin, async (req,res)=>{
    res.render("admin/all-orders",{admin:req.session.admin,orders})
 })
 
-//VIEW ORDER PRODUCTS orginal
-// router.get('/viewUserOrderProducts/:id', async (req, res) => {
-//   try {
-//     const products = await adminHelpers.getUserOrderProducts(req.params.id);
-//     const thisUser = await adminHelpers.getThisUser(req.params.id);
-//     res.render('admin/view-user-orders', { admin: req.session.admin, products, user: thisUser, orderId: req.params.id });
-//   } catch (error) {
-//     console.error('Error fetching user order products:', error);
-//     res.send("An error occurred while fetching user order products. Please try again.");
-//   }
-// });
 //update return accepted
 router.get('/viewUserOrderProducts/:id', async (req, res) => {
   try {
@@ -492,43 +481,6 @@ router.post('/addBanner',(req,res)=>{
   })
 })
 
-//CHANGE ORDER STATUS BY ADMIN orginal
-// router.get('/changeOrderStatus/:id/:status', async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const status = req.params.status;
-//     await adminHelpers.updateStatus(orderId, status);
-//     res.redirect(`/admin/viewUserOrderProducts/${orderId}`);
-//   } catch (error) {
-//     console.error('Error updating order status:', error);
-//     res.send("An error occurred while updating the order status. Please try again.");
-//   }
-// });
-//code for return accepted
-// router.get('/changeOrderStatus/:id/:status', async (req, res) => {
-//   try {
-//     const orderId = req.params.id;
-//     const status = req.params.status;
-//     if (status === 'Return-Accepted') {
-//       // Retrieve the user ID associated with the order
-//       const userId = await adminHelpers.getUserIdFromOrder(orderId);
-      
-//       // Calculate the total amount of products in the order
-//       const totalAmount = await adminHelpers.getTotalAmountT(orderId);
-      
-//       // Update the user's wallet
-//       await adminHelpers.updateWallet(userId, totalAmount);
-//     }
-    
-//     // Update the order status
-//     await adminHelpers.updateStatus(orderId, status);
-    
-//     res.redirect(`/admin/viewUserOrderProducts/${orderId}`);
-//   } catch (error) {
-//     console.error('Error updating order status:', error);
-//     res.send("An error occurred while updating the order status. Please try again.");
-//   }
-// });
 //impliment when admin click return accepted we must back the user purchase quantity to db
 router.get('/changeOrderStatus/:id/:status', async (req, res) => {
   try {
@@ -577,17 +529,6 @@ router.get('/add-coupon',(req,res)=>{
   res.render('admin/add-coupon')
 })
 
-// //ADD COUPONS POST ROUTER ORGINAL
-// router.post('/add-coupon', async (req, res) => {
-//   const couponDetails = req.body;
-//   try {
-//     await adminHelpers.addCoupon(couponDetails);
-//     res.redirect('/admin/coupon'); // Redirect to the coupon listing page after successful addition
-//   } catch (error) {
-//     console.log(error);
-//     res.render('admin/add-coupon', { error: 'Failed to add coupon' });
-//   }
-// });
 
 //IMPLIMENT UNIQUE FOR COUPON CODE
 // ADD COUPONS POST ROUTER
@@ -617,12 +558,6 @@ router.get('/delete-banner/:id',(req,res)=>{
   })
 })
 
-// //DELETE COUPON
-// router.get('/delete-coupon/:id',(req,res)=>{
-//   let couponId=req.params.id
-//   productHelpers.deleteCoupon(bannerId).then((response)=>{
-//     res.redirect('/admin/coupon')
-//   })
-// })
+
 
 module.exports = router;
