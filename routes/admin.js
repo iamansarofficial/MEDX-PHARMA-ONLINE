@@ -8,7 +8,6 @@ const adminHelpers=require('../helpers/admin-helpers')
 const userHelpers=require('../helpers/user-helpers')
 const catHelpers=require('../helpers/category-helpers')
 const fs = require('fs');
-const { createCanvas, loadImage } = require('canvas');
 const path = require('path');
 const PDFDocument = require('pdfkit');
 const ExcelJS = require('exceljs');
